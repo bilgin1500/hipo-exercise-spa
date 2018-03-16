@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackTemplate = require('html-webpack-template');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const mode = process.env.WEBPACK_MODE || 'development';
 const outputFolder = 'dist';
 const outputAssetsFolder = 'assets';
@@ -14,6 +15,7 @@ module.exports = {
     alias: {
       containers: path.resolve(__dirname, 'src/containers/'),
       components: path.resolve(__dirname, 'src/components/'),
+      utilities: path.resolve(__dirname, 'src/utilities'),
       images: path.resolve(__dirname, 'src/assets/images')
     }
   },
@@ -25,7 +27,7 @@ module.exports = {
         loader: 'babel-loader?cacheDirectory'
       },
       {
-        test: /\.(svg|ico|png|jpg|gif|woff|woff2|eot|ttf|otf|webm|mp4)$/,
+        test: /\.(svg|ico|png|jpg|gif)$/,
         use: [
           {
             loader: 'file-loader',
@@ -35,6 +37,10 @@ module.exports = {
             }
           }
         ]
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
       }
     ]
   },
@@ -119,6 +125,13 @@ module.exports = {
       }
     }),
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NamedModulesPlugin()
+    new webpack.NamedModulesPlugin(),
+    new CopyWebpackPlugin([
+      {
+        from: './src/assets/fonts/**/*',
+        to: outputAssetsFolder + '/fonts',
+        flatten: true
+      }
+    ])
   ]
 };

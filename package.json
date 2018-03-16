@@ -1,21 +1,23 @@
 {
   "name": "hipo-exercise-spa",
   "version": "1.0.0",
-  "description":
-    "A single page application built with React and the Foursquare public API.",
+  "description": "A single page application built with React and the Foursquare public API.",
   "main": "./src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "./node_modules/.bin/webpack --config webpack.config.js",
-    "build:prod":
-      "./node_modules/.bin/webpack --config webpack.config.js --mode production",
+    "build:prod": "./node_modules/.bin/webpack --config webpack.config.js --mode production",
     "start": "./node_modules/.bin/webpack-dev-server --config webpack.config.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/bilgin1500/hipo-exercise-spa.git"
   },
-  "keywords": ["SPA", "React", "Foursquare"],
+  "keywords": [
+    "SPA",
+    "React",
+    "Foursquare"
+  ],
   "author": {
     "name": "Bilgin Özkan",
     "email": "bilgin1500@gmail.com",
@@ -27,6 +29,8 @@
   },
   "homepage": "https://github.com/bilgin1500/hipo-exercise-spa#readme",
   "dependencies": {
+    "fontfaceobserver": "^2.0.13",
+    "normalize.css": "^8.0.0",
     "prop-types": "^15.6.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
@@ -40,9 +44,12 @@
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
     "clean-webpack-plugin": "^0.1.19",
+    "copy-webpack-plugin": "^4.5.1",
+    "css-loader": "^0.28.11",
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^3.0.6",
     "html-webpack-template": "^6.1.0",
+    "style-loader": "^0.20.3",
     "webpack": "^4.1.1",
     "webpack-cli": "^2.0.12",
     "webpack-dev-server": "^3.1.1"
