@@ -4,8 +4,6 @@ import { Heading, Paragraph, Input, Button } from 'components/Atoms';
 import Logo from 'components/Logo';
 import media from 'utilities/mediaqueries';
 import imgBg from 'images/background';
-import imgBgM from 'images/background@2x';
-import imgBgL from 'images/background@3x';
 import iconMagnifier from 'images/magnifier';
 
 const Header = styled.header`
@@ -13,13 +11,6 @@ const Header = styled.header`
   background-size: cover;
   background-image: url(${imgBg});
   padding: 0 30px 30px 30px;
-  ${media.tablet`
-    background-image: url(${imgBgM});
-    padding: 0 50px 50px 50px; 
-  `} ${media.desktop`
-    background-image: url(${imgBgL});
-    padding: 0 100px 100px 100px; 
-  `};
 `;
 
 const InnerWrapper = styled.div`
