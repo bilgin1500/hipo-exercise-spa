@@ -1,23 +1,47 @@
+import 'normalize.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
-// Components
+import styled from 'styled-components';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
-// Styles, fonts and images
-import 'normalize.css';
-import styled from 'styled-components';
-import 'images/favicon-16x16.png';
-import 'images/favicon-32x32.png';
-import { GothamBook, GothamExtraLight } from 'utilities/fontFaces';
+import 'images/favicon-16x16';
+import 'images/favicon-32x32';
+import iconLogo from 'images/logo';
+import {
+  GothamExtraLight,
+  GothamBook,
+  GothamMedium
+} from 'utilities/fontfaces';
 
-export default class App extends React.Component {
+// A basic loader component to hide the content
+// while fonts are loading
+const Loader = styled.div`
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  z-index: 100;
+`;
+
+/**
+ * App component
+ *
+ * This component is responsible to wrap all the app's content and do the font
+ * loading
+ */
+class App extends React.Component {
   constructor() {
     super();
     this.state = {
       isLoading: true
     };
 
-    Promise.all([GothamExtraLight.load(), GothamBook.load()]).then(
+    // With Promise.all fire events after all fonts are loaded
+    Promise.all([
+      GothamExtraLight.load(),
+      GothamBook.load(),
+      GothamMedium.load()
+    ]).then(
       () => {
         this.setState({ isLoading: false });
       },
@@ -29,26 +53,20 @@ export default class App extends React.Component {
   }
 
   render() {
-    const { children, className } = this.props;
-    const { isLoading } = this.state;
-
-    return isLoading ? (
-      <section className={className}>Loading...{children}</section>
+    return this.state.isLoading ? (
+      <main>
+        <Loader />
+      </main>
     ) : (
-      <section className={className}>{children}</section>
+      <main>{this.props.children}</main>
     );
   }
 }
 
-const StyledApp = styled(App)`
-  padding: 4em;
-  background: papayawhip;
-`;
-
 ReactDOM.render(
-  <StyledApp>
+  <App>
     <Header />
     <Footer />
-  </StyledApp>,
+  </App>,
   document.getElementById('app')
 );

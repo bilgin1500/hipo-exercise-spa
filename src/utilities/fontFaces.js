@@ -7,15 +7,35 @@ import { injectGlobal } from 'styled-components';
 //
 // @see https://www.styled-components.com/docs/api#injectglobal
 injectGlobal`
+  
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::placeholder {
+    color:#9b9b9b;
+  }
 
   @font-face {
     font-family: 'Gotham Book';
     src: url('/assets/fonts/Gotham-Book.otf');
+    font-weight: normal;
+    font-style: normal;
   }
 
   @font-face {
     font-family: 'Gotham Extra Light';
     src: url('/assets/fonts/Gotham-XLight.otf');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'Gotham Medium';
+    src: url('/assets/fonts/Gotham-Medium.otf');
+    font-weight: normal;
+    font-style: normal;
   }
 
 `;
@@ -26,10 +46,11 @@ injectGlobal`
 // @see https://fontfaceobserver.com/
 const GothamBook = new FontFaceObserver('Gotham Book');
 const GothamExtraLight = new FontFaceObserver('Gotham Extra Light');
+const GothamMedium = new FontFaceObserver('Gotham Medium');
 
 /**
  * Exports font objects with a load() method which will immediately return a
  * new Promise that resolves when the font is loaded and rejected when the
  * font fails to load.
  */
-export { GothamBook, GothamExtraLight };
+export { GothamBook, GothamExtraLight, GothamMedium };

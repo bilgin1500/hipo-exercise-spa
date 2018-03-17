@@ -12,6 +12,7 @@ const devServerPort = 8080;
 module.exports = {
   mode: mode,
   resolve: {
+    extensions: ['.js', '.json', '.jpg', '.png', '.svg'],
     alias: {
       containers: path.resolve(__dirname, 'src/containers/'),
       components: path.resolve(__dirname, 'src/components/'),
