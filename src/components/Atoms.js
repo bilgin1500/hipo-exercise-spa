@@ -1,4 +1,5 @@
-import styled from 'styled-components';
+import React from 'react';
+import styled, { keyframes } from 'styled-components';
 import media from 'utilities/mediaqueries';
 
 /*
@@ -138,4 +139,38 @@ const ScreenReaderText = styled.span`
   }
 `;
 
-export { Heading, Paragraph, Link, Input, Button, ScreenReaderText };
+/**
+ * A pure CSS spinner with keyframe animations.
+ * Based on the beatiuful SpinKit loaders on:
+ * https://github.com/tobiasahlin/SpinKit/blob/master/css/spinkit.css
+ */
+const doubleBounce = keyframes`
+  0%, 100% { transform: scale(0); }
+  50% { transform: scale(1); }
+`;
+
+const Loader = styled.div`
+  width: 40px;
+  height: 40px;
+  position: relative;
+  margin: 0 auto;
+  &:before,
+  &:after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: ${props => (props.color ? props.color : '#fff')};
+    opacity: 0.6;
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: ${doubleBounce} 2s infinite ease-in-out;
+  }
+  &:after {
+    animation-delay: -1s;
+  }
+`;
+
+export { Heading, Paragraph, Link, Input, Button, Loader, ScreenReaderText };

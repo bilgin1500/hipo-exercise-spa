@@ -1,28 +1,14 @@
 import uniqBy from 'lodash.uniqby';
 import querystring from 'querystring';
-import request from 'utilities/request';
 import { isUndefined } from 'utilities/helpers';
-
-// Base config object
-const config = {
-  api: {
-    v: '20180317',
-    url: 'https://api.foursquare.com/v2',
-    group: '/venues',
-    locale: 'en'
-  },
-  photo_size: 500, // 36, 100, 300, or 500
-  cat_icon_size: 88, // 32, 44, 64, and 88
-  client_id: '3QVH4AFOCCULOR4YWB2YTXLFOQ3ODBEDKNWMIGT0B0XAPDII',
-  client_secret: '3HQA3KM5G3VZ02VS1XNNBVV1XF2ABSJWTSUSFDGA4HPLRUNK'
-};
+import config from 'utilities/config';
 
 // @see https://developer.foursquare.com/docs/api/configuration/authentication#userless-auth
 const buildCreds = () => {
   return {
-    v: config.api.v,
-    client_id: config.client_id,
-    client_secret: config.client_secret
+    v: config.foursquare_api.v,
+    client_id: config.foursquare_api.client_id,
+    client_secret: config.foursquare_api.client_secret
   };
 };
 
@@ -37,7 +23,7 @@ const buildCreds = () => {
  * the end
  */
 const buildAPIUrl = ({ endpoint, params, field }) => {
-  let url = config.api.url + config.api.group + '/';
+  let url = config.foursquare_api.url + config.foursquare_api.group + '/';
 
   if (!isUndefined(endpoint)) {
     url += endpoint;
@@ -61,14 +47,14 @@ const buildAPIUrl = ({ endpoint, params, field }) => {
  * @param will be passed directly to buildAPIUrl method.
  * @return {promise} the request's promise
  */
-export const fetch = params => {
+export const fetchFS = params => {
   const urlToBeRequested = buildAPIUrl(params);
-  return request(urlToBeRequested);
+  return fetch(urlToBeRequested);
 };
 
 /**
  * Normalizer for Foursquare API response
- * @param {object} response - Needed parts of the API response is shown below
+ * @param {object} response - Full API response with meta and response properties
  * @return {object} Normalized data according to our store
  *
  * For API response, see: developer.foursquare.com/docs/api/venues/explore
@@ -160,7 +146,9 @@ export const normalize = response => {
           id: category.id,
           name: category.name,
           icon:
-            category.icon.prefix + config.cat_icon_size + category.icon.suffix
+            category.icon.prefix +
+            config.foursquare_api.cat_icon_size +
+            category.icon.suffix
         });
         return category.id;
       }),
@@ -168,12 +156,12 @@ export const normalize = response => {
         normalized.entities.users.push({
           id: photo.user.id,
           name: photo.user.firstName + ' ' + photo.user.lastName,
-          photo: photo.prefix + config.photo_size + photo.suffix
+          photo: photo.prefix + config.foursquare_api.photo_size + photo.suffix
         });
 
         return {
           userId: photo.user.id,
-          url: photo.prefix + config.photo_size + photo.suffix
+          url: photo.prefix + config.foursquare_api.photo_size + photo.suffix
         };
       }),
       tips: item.tips.map(tip => {
@@ -181,7 +169,9 @@ export const normalize = response => {
           id: tip.user.id,
           name: tip.user.firstName + ' ' + tip.user.lastName,
           photo:
-            tip.user.photo.prefix + config.photo_size + tip.user.photo.suffix
+            tip.user.photo.prefix +
+            config.foursquare_api.photo_size +
+            tip.user.photo.suffix
         });
 
         return {

@@ -10,16 +10,16 @@
  */
 export default {
   currentSearch: {
-    query: 'Pizza',
-    near: 'Kadıköy',
+    query: 'Hamburger',
+    near: 'New York',
 
-    // Will be set to true if API returns any error or empty results
+    // Will be set to true if API returns no results
     isEmpty: false,
 
     // Flag for loading state
     isFetching: false,
 
-    // Something bad happened or no results returned
+    // Something bad happened
     isError: false,
     errorMsg: ''
   },
@@ -28,6 +28,7 @@ export default {
       id: 'sdadl23nbnb1562',
       query: 'Pizza',
       near: 'Kadıköy',
+      createdAt: '2018-03-19 13:40',
       results: ['asdo29391823091']
     }
   ],
