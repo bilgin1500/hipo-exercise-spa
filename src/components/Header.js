@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Heading, Paragraph, Input, Button } from 'components/Atoms';
+import { Heading, Paragraph } from 'components/Atoms';
 import Logo from 'components/Logo';
+import Search from 'components/Search';
 import media from 'utilities/mediaqueries';
 import imgBg from 'images/background';
-import iconMagnifier from 'images/magnifier';
 
 const Header = styled.header`
   text-align: center;
@@ -40,14 +40,6 @@ const ParagraphWelcome = Paragraph.extend`
   `};
 `;
 
-const InputKeyword = Input.extend`
-  ${media.laptop`max-width: 290px;`};
-`;
-
-const InputPlace = Input.extend`
-  ${media.laptop`max-width: 160px;`};
-`;
-
 export default () => (
   <Header>
     <Logo />
@@ -57,11 +49,7 @@ export default () => (
         Lorem ipsum dolor sit amet, consectetur adipiscing elit,<br /> sed do
         eiusmod tempor incididunt ut labore et dolore magna aliqua.
       </ParagraphWelcome>
-      <InputKeyword placeholder="I’m looking for" />
-      <InputPlace placeholder="Place" />
-      <Button>
-        <img src={iconMagnifier} />
-      </Button>
+      <Search />
     </InnerWrapper>
   </Header>
 );

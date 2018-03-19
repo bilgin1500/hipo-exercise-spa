@@ -1,6 +1,8 @@
 import 'normalize.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import store from 'utilities/store';
 import styled from 'styled-components';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
@@ -64,9 +66,11 @@ class App extends React.Component {
 }
 
 ReactDOM.render(
-  <App>
-    <Header />
-    <Footer />
-  </App>,
+  <Provider store={store}>
+    <App>
+      <Header />
+      <Footer />
+    </App>
+  </Provider>,
   document.getElementById('app')
 );

@@ -101,6 +101,9 @@ const Button = InputButton.extend`
     display: block;
     margin: 0 auto;
   }
+  &:disabled {
+    background-color: #ffa6a6;
+  }
 `;
 
 /**
