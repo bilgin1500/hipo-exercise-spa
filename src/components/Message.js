@@ -2,25 +2,26 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Heading, Paragraph } from 'components/Atoms';
+import { fadeOut, go } from 'utilities/style-mixins';
 import { isUndefined, isNull } from 'utilities/helpers';
 
 const MsgWrapper = styled.div`
   background-color: ${props => {
     switch (props.type) {
       case 0:
-        return 'green';
+        return '#5680fd';
         break;
       case 1:
-        return 'orange';
+        return '#ef8d45';
         break;
       case 2:
         return '#ff5f5f';
         break;
       case 3:
-        return 'red';
+        return '#de0266';
         break;
       default:
-        return '#444';
+        return '#823060';
     }
   }};
   padding: 15px;
@@ -29,15 +30,15 @@ const MsgWrapper = styled.div`
 `;
 
 const MsgHeading = Heading.withComponent('h2').extend`
-  font-size:1.3125em;
-  margin-top:0;
-  margin-bottom:15px;
+  font-size: 1.3125em;
+  margin-top: 0;
+  margin-bottom: 15px;
 `;
 
 const MsgText = Paragraph.extend`
   color: #fff;
   margin: 0;
-  font-size: 0.8125em;
+  font-size: 1em;
 `;
 
 class Message extends React.Component {
@@ -62,8 +63,10 @@ class Message extends React.Component {
     if (this.shouldRender()) {
       return (
         <MsgWrapper type={this.props.type}>
-          {this.props.title && <MsgHeading>{this.props.title}</MsgHeading>}
-          <MsgText>{this.props.text}</MsgText>
+          {this.props.title && (
+            <MsgHeading gotham="medium">{this.props.title}</MsgHeading>
+          )}
+          <MsgText gotham="book">{this.props.text}</MsgText>
         </MsgWrapper>
       );
     }

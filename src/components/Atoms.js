@@ -1,6 +1,6 @@
 import React from 'react';
-import styled, { keyframes } from 'styled-components';
-import media from 'utilities/mediaqueries';
+import styled from 'styled-components';
+import { media, GothamFamily, doubleBounce } from 'utilities/style-mixins';
 
 /*
 "Atoms are the basic building blocks of matter. Applied to web interfaces, atoms are our HTML tags, such as a form label, an input or a button." - Brad Frost
@@ -25,10 +25,8 @@ ScreenReaderText: Invisible text, for span, p etc.
  * Headings
  * Can be used with other tags: Heading.withComponent('h2')
  */
-const Heading = styled.h1`
-  font-family: 'Gotham Extra Light', Helvetica Neue, Helvetica, Arial,
-    sans-serif;
-  font-weight: 200;
+export const Heading = styled.h1`
+  ${props => GothamFamily(props.gotham)};
   text-align: center;
   line-height: normal;
   color: #fff;
@@ -37,10 +35,9 @@ const Heading = styled.h1`
 /**
  * Paragraphs
  */
-const Paragraph = styled.p`
-  font-family: 'Gotham Book', Helvetica Neue, Helvetica, Arial, sans-serif;
+export const Paragraph = styled.p`
+  ${props => GothamFamily(props.gotham)};
   font-size: 1em;
-  font-weight: normal;
   text-align: center;
   line-height: normal;
   color: #fff;
@@ -50,7 +47,7 @@ const Paragraph = styled.p`
  * Links
  */
 const Anchor = Paragraph.withComponent('a');
-const Link = Anchor.extend`
+export const Link = Anchor.extend`
   text-decoration: none;
   color: cornflowerblue;
   &:hover {
@@ -61,7 +58,7 @@ const Link = Anchor.extend`
 /**
  * Input fields
  */
-const Input = styled.input`
+export const Input = styled.input`
   font-family: 'Gotham Medium', Helvetica Neue, Helvetica, Arial, sans-serif;
   font-size: 0.875em;
   color: #333;
@@ -86,7 +83,7 @@ const Input = styled.input`
  * Buttons
  */
 const InputButton = Input.withComponent('button');
-const Button = InputButton.extend`
+export const Button = InputButton.extend`
   color: #fff;
   background-color: #ff5f5f;
   padding: 11px 25px 12px;
@@ -110,7 +107,7 @@ const Button = InputButton.extend`
 /**
  * Screen Reader Text
  */
-const ScreenReaderText = styled.span`
+export const ScreenReaderText = styled.span`
   clip: rect(1px, 1px, 1px, 1px);
   height: 1px;
   overflow: hidden;
@@ -144,12 +141,7 @@ const ScreenReaderText = styled.span`
  * Based on the beatiuful SpinKit loaders on:
  * https://github.com/tobiasahlin/SpinKit/blob/master/css/spinkit.css
  */
-const doubleBounce = keyframes`
-  0%, 100% { transform: scale(0); }
-  50% { transform: scale(1); }
-`;
-
-const Loader = styled.div`
+export const Loader = styled.div`
   width: 40px;
   height: 40px;
   position: relative;
@@ -173,4 +165,3 @@ const Loader = styled.div`
   }
 `;
 
-export { Heading, Paragraph, Link, Input, Button, Loader, ScreenReaderText };

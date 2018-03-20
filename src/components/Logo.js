@@ -1,9 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { push } from 'react-router-redux';
-import store from 'utilities/store';
-import { clearSearch } from 'utilities/actions';
-import media from 'utilities/mediaqueries';
+import { connect } from 'react-redux';
+import { goHome } from 'utilities/actions';
+import { media } from 'utilities/style-mixins';
 import config from 'utilities/config';
 import { ScreenReaderText } from 'components/Atoms';
 import iconLogo from 'images/logo';
@@ -15,7 +15,7 @@ const LogoWrapper = styled.a.attrs({
   display: block;
   position: relative;
   border: 3px solid #fff;
-  transform: translate(0,-50%) rotate(45deg);
+  transform: translate(0, -50%) rotate(45deg);
   width: 80%;
   max-width: 300px;
   max-height: 300px;
@@ -24,8 +24,7 @@ const LogoWrapper = styled.a.attrs({
   box-sizing: border-box;
   ${media.tablet`
     margin-bottom:-50px
-  `}
-  > img {
+  `} > img {
     position: absolute;
     bottom: 20px;
     right: 20px;
@@ -34,13 +33,11 @@ const LogoWrapper = styled.a.attrs({
     ${media.tablet`
       bottom: 50px;
       right: 50px;
-    `}
-    ${media.laptop`
+    `} ${media.laptop`
       bottom: 80px;
       right: 80px;
-    `}
+    `};
   }
-}
 `;
 
 // Extend ScreenReaderText with h1 tag so that it will be invisible
@@ -76,12 +73,9 @@ const Logo = class App extends React.Component {
   render() {
     return (
       <LogoWrapper
+        onClick={this.props.onClick}
         innerRef={tag => {
           this.elements.LogoWrapper = tag;
-        }}
-        onClick={e => {
-          store.dispatch(clearSearch());
-          store.dispatch(push('/'));
         }}
       >
         <img src={iconLogo} alt={config.title} />
@@ -91,4 +85,16 @@ const Logo = class App extends React.Component {
   }
 };
 
-export default Logo;
+Logo.propTypes = {
+  onClick: PropTypes.func.isRequired
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onClick: e => {
+      dispatch(goHome());
+    }
+  };
+};
+
+export default connect(undefined, mapDispatchToProps)(Logo);

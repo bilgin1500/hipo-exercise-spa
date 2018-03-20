@@ -53,13 +53,16 @@ export default {
         id: 'UNIQUE_ID',
         name: 'STRING',
         rating: 9.5,
+        hereNow: 0,
+        price: 0,
         address: 'STRING',
         phone: 'STRING',
         categories: ['UNIQUE_ID'],
         photos: [
           {
             userId: 'UNIQUE_ID',
-            url: 'STRING'
+            url: 'STRING',
+            type: 'STRING'
           }
         ],
         tips: [

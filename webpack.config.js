@@ -86,7 +86,7 @@ module.exports = {
     new CleanWebpackPlugin(['dist'], { verbose: true }),
     new HtmlWebpackPlugin({
       template: HtmlWebpackTemplate,
-      title: 'Foursquared',
+      title: config.title,
       favicon: './src/assets/images/favicon.ico',
       links: [
         {
@@ -107,8 +107,7 @@ module.exports = {
         { name: 'robots', content: 'noindex,nofollow' },
         {
           name: 'description',
-          content:
-            'A front-end exercise: Building a basic single page application using Foursquare API and latest web technologies.'
+          content: config.description
         }
       ],
       mobile: true,

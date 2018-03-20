@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Heading, Paragraph } from 'components/Atoms';
 import Logo from 'components/Logo';
 import Search from 'components/Search';
-import media from 'utilities/mediaqueries';
+import { media } from 'utilities/style-mixins';
 import imgBg from 'images/background';
 
 const Header = styled.header`
@@ -45,7 +45,7 @@ export default () => (
     <Logo />
     <InnerWrapper>
       <HeadingWelcome>Lorem ipsum dolor sit!</HeadingWelcome>
-      <ParagraphWelcome>
+      <ParagraphWelcome gotham="book">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit,<br /> sed do
         eiusmod tempor incididunt ut labore et dolore magna aliqua.
       </ParagraphWelcome>

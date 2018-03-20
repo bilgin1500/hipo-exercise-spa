@@ -99,15 +99,19 @@ const currentSearch = (state = {}, action) => {
 const searches = (state = {}, action) => {
   switch (action.type) {
     case SAVE_SEARCH:
-      return Object.assign({}, state, {
-        [action.search.id]: {
-          id: action.search.id,
-          query: action.search.query,
-          near: action.search.near,
-          results: action.search.results,
-          createdAt: convertDate(new Date())
+      return Object.assign(
+        {},
+        {
+          [action.search.id]: {
+            id: action.search.id,
+            query: action.search.query,
+            near: action.search.near,
+            results: action.search.results,
+            createdAt: new Date()
+          },
+          ...state
         }
-      });
+      );
 
     default:
       return state;

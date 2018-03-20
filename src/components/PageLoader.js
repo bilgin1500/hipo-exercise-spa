@@ -4,7 +4,7 @@ import {
   GothamExtraLight,
   GothamBook,
   GothamMedium
-} from 'utilities/fontfaces';
+} from 'utilities/style-global';
 
 // A basic loader component to hide the content
 // while fonts are loading

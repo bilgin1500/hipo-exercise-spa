@@ -1,6 +1,8 @@
 import { push } from 'react-router-redux';
+import { isUndefined } from 'utilities/helpers';
 import { fetchFS, normalize } from 'utilities/foursquare';
 import { saveStorage, clearStorage } from 'utilities/localstorage';
+import { changeTitle, timeAgo, capitalize } from 'utilities/helpers';
 import config from 'utilities/config';
 
 // Action list
@@ -128,8 +130,7 @@ export const getSearch = searchId => {
       dispatch(updateSearch(search.query, search.near, search.id));
     } else {
       // If no match found go back to home and be ready for next search
-      dispatch(push('/'));
-      dispatch(clearSearch());
+      dispatch(goHome());
       dispatch(beepSearch(1, config.UI_messages.no_match_found_text));
     }
   };
@@ -168,7 +169,12 @@ export const fetchFoursquare = (query, near) => {
     return (
       fetchFS({
         endpoint: 'explore',
-        params: { query: query, near: near, venuePhotos: true }
+        params: {
+          query: query,
+          near: near,
+          limit: config.foursquare_api.limit,
+          venuePhotos: true
+        }
       })
         // When the results arrive convert them to readebla json format
         .then(response => {
@@ -196,7 +202,7 @@ export const fetchFoursquare = (query, near) => {
                 dispatch(stopSearch());
                 dispatch(saveSearch(query, near, normalize(response)));
                 dispatch(saveStateToLocalstorage());
-                dispatch(push('/search/' + response.meta.requestId));
+                dispatch(goSearch(response.meta.requestId, query, near));
               }, config.UI_delay);
             }
           } else {
@@ -224,6 +230,29 @@ export const fetchFoursquare = (query, near) => {
 };
 
 /**
+ * Clears the current search and go back to home
+ * @public
+ */
+export const goHome = () => {
+  return dispatch => {
+    changeTitle('Home');
+    dispatch(push('/'));
+    dispatch(clearSearch());
+  };
+};
+
+/**
+ * Go to a specific search page
+ * @public
+ */
+export const goSearch = (id, query, near) => {
+  return dispatch => {
+    changeTitle(capitalize(query) + ' in ' + capitalize(near));
+    dispatch(push('/search/' + id));
+  };
+};
+
+/**
  * Clears Redux store
  * @return {object} An object with just an action type
  */
@@ -232,15 +261,56 @@ const clearStore = () => {
 };
 
 /**
- * Returns to home, clears Redux store and localstorage
+ * Clears Redux store and localstorage, returns to home
  * and congratulates you for all you've done.
  * @public
  */
 export const clearAll = () => {
   return dispatch => {
-    dispatch(push('/'));
+    dispatch(goHome());
     dispatch(clearStore());
     clearStorage();
     dispatch(beepSearch(0, config.UI_messages.cleared_all));
+  };
+};
+
+/**
+ * Maps the state for the UI of the results page
+ * @param  {object} state - Current store's state
+ * @param  {object} ownProps - Current properties supplied to the component
+ * @return {object} Final properties which will be injected into the component
+ */
+export const mapStateToResults = (state, ownProps) => {
+  // Check if any search matches the url parameter, if not pass an empty object
+  if (isUndefined(state.searches[ownProps.match.params.id])) {
+    return { venues: [], searches: [] };
+  }
+
+  return {
+    // Get the venue list of the current search result
+    venues: state.searches[ownProps.match.params.id].results.map(id => {
+      const currentVenue = state.entities.venues[id];
+      return {
+        id: id,
+        name: currentVenue.name,
+        rating: currentVenue.rating,
+        price: currentVenue.price,
+        hereNow: currentVenue.hereNow,
+        photo: currentVenue.photos.length
+          ? currentVenue.photos.filter(photo => photo.type == 'venue').length
+            ? currentVenue.photos.filter(photo => photo.type == 'venue')[0].url
+            : currentVenue.photos[0].url
+          : config.UI_placeholder_img
+      };
+    }),
+
+    // Get all the previous searches for sidebar
+    searches: Object.keys(state.searches).map(id => {
+      return {
+        id: id,
+        title: state.searches[id].query + ' in ' + state.searches[id].near,
+        timeAgo: timeAgo(state.searches[id].createdAt)
+      };
+    })
   };
 };

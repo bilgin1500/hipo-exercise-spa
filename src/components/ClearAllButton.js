@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { Button } from 'components/Atoms';
 import { clearAll } from 'utilities/actions';
+import { media } from 'utilities/style-mixins';
 
 const ClearAllButton = ({ onClick, className }) => (
   <Button className={className} onClick={onClick}>
@@ -12,9 +13,12 @@ const ClearAllButton = ({ onClick, className }) => (
 );
 
 const StyledClearAllButton = styled(ClearAllButton)`
-  position: fixed;
-  top: 20px;
-  right 20px;
+  display: block;
+  box-shadow: none;
+  margin: 0 auto;
+  margin-top: 20px;
+  background-color: #eee;
+  color: #9b9b9b;
 `;
 
 ClearAllButton.propTypes = {

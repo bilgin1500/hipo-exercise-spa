@@ -52,62 +52,12 @@ export const fetchFS = params => {
 };
 
 /**
- * Normalizer for Foursquare API response
+ * Normalizer for Foursquare API. It takes the response and changes its shape.
  * @param {object} response - Full API response with meta and response properties
- * @return {object} Normalized data according to our store
+ * @return {object} Normalized object according to our store's shape
  *
- * For API response, see: developer.foursquare.com/docs/api/venues/explore
- * For app's state shape, see: utilities/state.js file
- *
- * Below you can find all the extracted properties which we're going to use
- * in our app. The structure below has been extracted from the API response
- * for our request to '/explore' endpoint with parameters 'near' as string,
- * 'venuePhotos' as boolean and 'query' as string.
- *
- * |- meta
- *     |- requestId
- * |- response
- *     |- query
- *     |- headerLocation
- *     |- groups[0]
- *         |- items[0]
- *             |- tips[0]
- *                 |- text
- *                 |- user
- *                     |- id
- *                     |- firstName
- *                     |- lastName
- *                     |- photo
- *                         |- prefix
- *                         |- suffix
- *             |- venue
- *                 |- id
- *                 |- name
- *                 |- rating
- *                 |- photos
- *                     |- groups[0]
- *                         |- items[0]
- *                             |- prefix
- *                             |- suffix
- *                             |- user
- *                                 |- id
- *                                 |- firstName
- *                                 |- lastName
- *                                 |- photo
- *                                     |- prefix
- *                                     |- suffix
- *                 |- location
- *                     |- address
- *                 |- contact
- *                     |- formattedPhone
- *                 |- hereNow
- *                     |- count
- *                 |- categories[0]
- *                     |- id
- *                     |- name
- *                     |- icon
- *                         |- prefix
- *                         |- suffix
+ * Response:  developer.foursquare.com/docs/api/venues/explore
+ * Store:     utilities/state.js
  */
 export const normalize = response => {
   // Let's start with a structure similar to our app's final state.
@@ -169,27 +119,31 @@ export const normalize = response => {
       }
 
       /*
-      Map all the photos to the empty array
+      Map all the photos from all the groups 
+      (with group types like 'venue' or 'checkin')
       (entities.venues.UNIQUE_ID.photos)
        */
-      if (
-        item.venue.photos.groups.length &&
-        item.venue.photos.groups[0].items.length
-      ) {
-        photos = item.venue.photos.groups[0].items.map(photo => {
-          // Extract the photo's user to the user entity
-          normalized.entities.users[photo.user.id] = {
-            id: photo.user.id,
-            name: photo.user.firstName + ' ' + photo.user.lastName,
-            photoUrl:
-              photo.prefix + config.foursquare_api.photo_size + photo.suffix
-          };
+      if (item.venue.photos.groups.length) {
+        item.venue.photos.groups.forEach(group => {
+          if (group.count > 0) {
+            group.items.forEach(photo => {
+              // Extract the photo's user to the user entity
+              normalized.entities.users[photo.user.id] = {
+                id: photo.user.id,
+                name: photo.user.firstName + ' ' + photo.user.lastName,
+                photoUrl:
+                  photo.prefix + config.foursquare_api.photo_size + photo.suffix
+              };
 
-          // Save the reference of the user and photo url
-          return {
-            userId: photo.user.id,
-            url: photo.prefix + config.foursquare_api.photo_size + photo.suffix
-          };
+              // Save the reference of the user and photo url
+              photos.push({
+                userId: photo.user.id,
+                type: group.type,
+                url:
+                  photo.prefix + config.foursquare_api.photo_size + photo.suffix
+              });
+            });
+          }
         });
       }
 
@@ -218,9 +172,26 @@ export const normalize = response => {
       normalized.entities.venues[item.venue.id] = {
         id: item.venue.id,
         name: item.venue.name,
-        rating: item.venue.rating,
-        address: item.venue.location.address,
-        phone: item.venue.contact.phone,
+        rating: !isUndefined(item.venue.rating) && item.venue.rating,
+        price:
+          !isUndefined(item.venue.price) && !isUndefined(item.venue.price.tier)
+            ? item.venue.price.tier
+            : null,
+        hereNow:
+          !isUndefined(item.venue.hereNow) &&
+          !isUndefined(item.venue.hereNow.count)
+            ? item.venue.hereNow.count
+            : null,
+        address:
+          !isUndefined(item.venue.location) &&
+          !isUndefined(item.venue.location.address)
+            ? item.venue.location.address
+            : '',
+        phone:
+          !isUndefined(item.venue.contact) &&
+          !isUndefined(item.venue.contact.phone)
+            ? item.venue.contact.phone
+            : '',
         categories: categories,
         photos: photos,
         tips: tips

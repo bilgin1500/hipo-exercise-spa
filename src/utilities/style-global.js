@@ -6,7 +6,8 @@ import { injectGlobal } from 'styled-components';
 // ! This should only be used once
 //
 // @see https://www.styled-components.com/docs/api#injectglobal
-injectGlobal`
+export const globalCss = () => {
+  injectGlobal`
   
   * {
     -webkit-font-smoothing: antialiased;
@@ -16,7 +17,7 @@ injectGlobal`
   ::placeholder {
     color:#9b9b9b;
   }
-
+  
   @font-face {
     font-family: 'Gotham Book';
     src: url('/assets/fonts/Gotham-Book.otf');
@@ -39,18 +40,12 @@ injectGlobal`
   }
 
 `;
+};
 
 // To observe the fonts via js first define them
 // with the same familt-names used above
 //
 // @see https://fontfaceobserver.com/
-const GothamBook = new FontFaceObserver('Gotham Book');
-const GothamExtraLight = new FontFaceObserver('Gotham Extra Light');
-const GothamMedium = new FontFaceObserver('Gotham Medium');
-
-/**
- * Exports font objects with a load() method which will immediately return a
- * new Promise that resolves when the font is loaded and rejected when the
- * font fails to load.
- */
-export { GothamBook, GothamExtraLight, GothamMedium };
+export const GothamBook = new FontFaceObserver('Gotham Book');
+export const GothamExtraLight = new FontFaceObserver('Gotham Extra Light');
+export const GothamMedium = new FontFaceObserver('Gotham Medium');

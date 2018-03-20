@@ -14,23 +14,28 @@ const LinkFooter = Link.extend`
   color: #9b9b9b;
 `;
 
-const Nav = ({ className }) => (
-  <nav>
-    {navItems.map((item, i) => (
-      <LinkFooter className={className} href={item.href} key={i}>
-        {item.name}
-      </LinkFooter>
-    ))}
-  </nav>
-);
+const Nav = styled.nav`
+  border-top: ${props => (!props.border ? '2px solid #e3e3e3' : 'none')};
+  padding-top: ${props => (!props.border ? '40px' : '0')};
+  max-width: 1040px;
+  margin: 0 auto;
+`;
 
 const Footer = styled.footer`
   text-align: center;
   padding: 40px;
 `;
 
-export default () => (
-  <Footer>
-    <Nav />
-  </Footer>
-);
+export default props => {
+  return (
+    <Footer>
+      <Nav border={props.match.url == '/'}>
+        {navItems.map((item, i) => (
+          <LinkFooter gotham="medium" href={item.href} key={i}>
+            {item.name}
+          </LinkFooter>
+        ))}
+      </Nav>
+    </Footer>
+  );
+};

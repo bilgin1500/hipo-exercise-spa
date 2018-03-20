@@ -1,3 +1,5 @@
+import config from 'utilities/config';
+
 /*
   Is a given variable undefined?
  */
@@ -21,7 +23,16 @@ export const isFunction = func => {
 };
 
 /**
- * A basic date converter. Converts js date object to a simple sql format
+ * Make a string's first letter uppercase
+ * @param {string} string - The string to be capitalized
+ * @return {string} The string after transformation
+ */
+export const capitalize = string => {
+  return string.replace(string.charAt(0), string.charAt(0).toUpperCase());
+};
+
+/**
+ * Date converter. Converts js date object to a simple sql format
  * @param {object} date - Js date object
  * @return {string} YYYY-MM-DD HH:MM
  */
@@ -50,4 +61,47 @@ export const convertDate = date => {
     ':' +
     addZero(min)
   );
+};
+
+/**
+ * Relative time parser
+ * @param  {date} date - The date object from the db. Must be js date()
+ * @return {string} a user friendly sentence
+ */
+export const timeAgo = date => {
+  const msPerMinute = 60 * 1000;
+  const msPerHour = msPerMinute * 60;
+  const msPerDay = msPerHour * 24;
+  const msPerMonth = msPerDay * 30;
+  const msPerYear = msPerDay * 365;
+
+  const elapsed = new Date() - new Date(date);
+
+  if (elapsed < msPerMinute) {
+    return Math.round(elapsed / 1000) + ' second(s) ago';
+  } else if (elapsed < msPerHour) {
+    return Math.round(elapsed / msPerMinute) + ' minute(s) ago';
+  } else if (elapsed < msPerDay) {
+    return Math.round(elapsed / msPerHour) + ' hour(s) ago';
+  } else if (elapsed < msPerMonth) {
+    return 'approximately ' + Math.round(elapsed / msPerDay) + ' day(s) ago';
+  } else if (elapsed < msPerYear) {
+    return (
+      'approximately ' + Math.round(elapsed / msPerMonth) + ' month(s) ago'
+    );
+  } else {
+    return 'approximately ' + Math.round(elapsed / msPerYear) + ' year(s) ago';
+  }
+};
+
+/**
+ * Document title changer
+ * @param  {string} title - The subtitle before the '- Foursquared'
+ */
+export const changeTitle = title => {
+  if (title) {
+    document.title = title + config.titleSep + config.title;
+  } else {
+    document.title = config.title;
+  }
 };

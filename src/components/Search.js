@@ -7,7 +7,7 @@ import { Input, Button, Loader } from 'components/Atoms';
 import { getSearch, fetchFoursquare, clearSearch } from 'utilities/actions';
 import { isUndefined } from 'utilities/helpers';
 import Message from 'components/Message';
-import media from 'utilities/mediaqueries';
+import { media } from 'utilities/style-mixins';
 import iconMagnifier from 'images/magnifier';
 
 /*
