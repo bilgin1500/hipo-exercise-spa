@@ -11,7 +11,7 @@ $ npm i
 
 After installing the dependencies you can build the [development version](https://medium.com/webpack/webpack-4-mode-and-optimization-5423a6bc597a) via `npm run build` command and production version via `npm run build:prod` command. Both versions will be built into the `dist` folder (after first deleting it).
 
-To run the website on your localhost you can use `npm start`. The port is :8080. (Which can be changed in the webpack.config file)
+To run the website on your localhost you can use `npm start`. The port is :8080. (Which can be changed in the `src/utilities/config.js` file)
 
 _In order to build and run the code you should have [node](https://nodejs.org/) and [npm](https://www.npmjs.com) installed._
 

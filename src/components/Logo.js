@@ -1,6 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
+import { push } from 'react-router-redux';
+import store from 'utilities/store';
+import { clearSearch } from 'utilities/actions';
 import media from 'utilities/mediaqueries';
+import config from 'utilities/config';
 import { ScreenReaderText } from 'components/Atoms';
 import iconLogo from 'images/logo';
 
@@ -44,11 +48,9 @@ const LogoWrapper = styled.a.attrs({
 const LogoText = ScreenReaderText.withComponent('h1');
 
 /**
- * Logo component
- *
- * This component wraps the logo image and type. Via its
- * setLogoWrapperWidth method it listens to window resize events and helps the
- * LogoWrapper to get its new height according to percentage width
+ * Logo component wraps the logo image and text. It also listens to the window
+ * resize events and adjusts its height according to its percentage-based
+ * width.
  */
 const Logo = class App extends React.Component {
   constructor() {
@@ -77,9 +79,13 @@ const Logo = class App extends React.Component {
         innerRef={tag => {
           this.elements.LogoWrapper = tag;
         }}
+        onClick={e => {
+          store.dispatch(clearSearch());
+          store.dispatch(push('/'));
+        }}
       >
-        <img src={iconLogo} alt="Foursquared" />
-        <LogoText>Foursquared</LogoText>
+        <img src={iconLogo} alt={config.title} />
+        <LogoText>{config.title}</LogoText>
       </LogoWrapper>
     );
   }

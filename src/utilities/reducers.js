@@ -1,11 +1,15 @@
 import merge from 'lodash.merge';
 import { combineReducers } from 'redux';
+import { routerReducer } from 'react-router-redux';
 import { convertDate } from 'utilities/helpers';
 import {
   START_SEARCH,
   STOP_SEARCH,
-  ERROR_SEARCH,
-  ADD_SEARCH
+  UPDATE_SEARCH,
+  CLEAR_SEARCH,
+  BEEP_SEARCH,
+  SAVE_SEARCH,
+  CLEAR_ALL
 } from 'utilities/actions';
 
 /*
@@ -28,20 +32,56 @@ const currentSearch = (state = {}, action) => {
         query: action.query,
         near: action.near,
         isFetching: true,
-        isError: false,
-        isEmpty: false
+        message: {
+          type: null,
+          title: '',
+          text: ''
+        }
       });
 
     case STOP_SEARCH:
       return Object.assign({}, state, {
         isFetching: false,
-        isEmpty: action.isEmpty
+        message: {
+          type: null,
+          title: '',
+          text: ''
+        }
       });
 
-    case ERROR_SEARCH:
+    case UPDATE_SEARCH:
       return Object.assign({}, state, {
-        isError: true,
-        errorMsg: action.errorMsg
+        query: action.query,
+        near: action.near,
+        id: action.searchId,
+        isFetching: false
+      });
+
+    case CLEAR_SEARCH:
+      return Object.assign({}, state, {
+        query: '',
+        near: '',
+        id: null,
+        isFetching: false,
+        message: {
+          type: null,
+          title: '',
+          text: ''
+        }
+      });
+
+    case SAVE_SEARCH:
+      return Object.assign({}, state, {
+        id: action.search.id
+      });
+
+    case BEEP_SEARCH:
+      return Object.assign({}, state, {
+        message: {
+          type: action.msgType,
+          title: action.msgTitle,
+          text: action.msgText
+        }
       });
 
     default:
@@ -56,19 +96,18 @@ const currentSearch = (state = {}, action) => {
  * @param  {Object} action - Changes to the prev. state
  * @return {Object} Next state
  */
-const searches = (state = [], action) => {
+const searches = (state = {}, action) => {
   switch (action.type) {
-    case ADD_SEARCH:
-      return [
-        ...state,
-        {
+    case SAVE_SEARCH:
+      return Object.assign({}, state, {
+        [action.search.id]: {
           id: action.search.id,
           query: action.search.query,
           near: action.search.near,
           results: action.search.results,
           createdAt: convertDate(new Date())
         }
-      ];
+      });
 
     default:
       return state;
@@ -83,7 +122,7 @@ const searches = (state = [], action) => {
  * @return {Object} Next state
  */
 const entities = (
-  state = { users: [], categories: [], venues: [] },
+  state = { users: {}, categories: {}, venues: {} },
   action
 ) => {
   if (action.entities) {
@@ -93,10 +132,22 @@ const entities = (
 };
 
 // https://redux.js.org/api-reference/combinereducers
-const rootReducer = combineReducers({
+const appReducer = combineReducers({
   currentSearch,
   searches,
-  entities
+  entities,
+  router: routerReducer
 });
+
+/**
+ * To clear the store we'll wrap the appReducer and handle
+ * the 'reset' action here.
+ */
+const rootReducer = (state, action) => {
+  if (action.type === 'CLEAR_ALL') {
+    state = undefined;
+  }
+  return appReducer(state, action);
+};
 
 export default rootReducer;

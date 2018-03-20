@@ -2,75 +2,28 @@ import 'normalize.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
+import { Route, Switch } from 'react-router-dom';
+import { ConnectedRouter } from 'react-router-redux';
+import history from 'utilities/history';
 import store from 'utilities/store';
-import styled from 'styled-components';
+import ClearAllButton from 'components/ClearAllButton';
+import PageLoader from 'components/PageLoader';
 import Header from 'components/Header';
+import Results from 'components/Results';
 import Footer from 'components/Footer';
 import 'images/favicon-16x16';
 import 'images/favicon-32x32';
-import iconLogo from 'images/logo';
-import {
-  GothamExtraLight,
-  GothamBook,
-  GothamMedium
-} from 'utilities/fontfaces';
-
-// A basic loader component to hide the content
-// while fonts are loading
-const Loader = styled.div`
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  background-color: #fff;
-  z-index: 100;
-`;
-
-/**
- * App component
- *
- * This component is responsible to wrap all the app's content and do the font
- * loading
- */
-class App extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      isLoading: true
-    };
-
-    // With Promise.all fire events after all fonts are loaded
-    Promise.all([
-      GothamExtraLight.load(),
-      GothamBook.load(),
-      GothamMedium.load()
-    ]).then(
-      () => {
-        this.setState({ isLoading: false });
-      },
-      err => {
-        console.error('Failed to load fonts!', err);
-        this.setState({ isLoading: false });
-      }
-    );
-  }
-
-  render() {
-    return this.state.isLoading ? (
-      <main>
-        <Loader />
-      </main>
-    ) : (
-      <main>{this.props.children}</main>
-    );
-  }
-}
 
 ReactDOM.render(
   <Provider store={store}>
-    <App>
-      <Header />
-      <Footer />
-    </App>
+    <ConnectedRouter history={history}>
+      <div>
+        <ClearAllButton />
+        <Route path="/:endpoint?/:id?" component={Header} />
+        <Route path="/search/:id" exact component={Results} />
+        <Footer />
+      </div>
+    </ConnectedRouter>
   </Provider>,
   document.getElementById('app')
 );

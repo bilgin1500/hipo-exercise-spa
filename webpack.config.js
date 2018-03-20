@@ -5,9 +5,7 @@ const HtmlWebpackTemplate = require('html-webpack-template');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const mode = process.env.WEBPACK_MODE || 'development';
-const outputFolder = 'dist';
-const outputAssetsFolder = 'assets';
-const devServerPort = 8080;
+const config = require('./src/utilities/config.js');
 
 module.exports = {
   mode: mode,
@@ -33,7 +31,7 @@ module.exports = {
           {
             loader: 'file-loader',
             options: {
-              outputPath: outputAssetsFolder + '/',
+              outputPath: config.webpack.outputAssetsFolder + '/',
               name: '[name].[ext]'
             }
           }
@@ -46,8 +44,8 @@ module.exports = {
     ]
   },
   devServer: {
-    contentBase: path.resolve(__dirname, outputFolder),
-    port: devServerPort,
+    contentBase: path.resolve(__dirname, config.webpack.outputFolder),
+    port: config.webpack.devServerPort,
     historyApiFallback: { index: '/' },
     open: true,
     hot: true,
@@ -104,7 +102,7 @@ module.exports = {
           type: 'image/png'
         }
       ],
-      //devServer: 'http://localhost:' + devServerPort,
+      //devServer: 'http://localhost:' + config.webpack.devServerPort,
       meta: [
         { name: 'robots', content: 'noindex,nofollow' },
         {
@@ -130,7 +128,7 @@ module.exports = {
     new CopyWebpackPlugin([
       {
         from: './src/assets/fonts/**/*',
-        to: outputAssetsFolder + '/fonts',
+        to: config.webpack.outputAssetsFolder + '/fonts',
         flatten: true
       }
     ])

@@ -30,8 +30,8 @@
   "homepage": "https://github.com/bilgin1500/hipo-exercise-spa#readme",
   "dependencies": {
     "fontfaceobserver": "^2.0.13",
+    "history": "^4.7.2",
     "lodash.merge": "^4.6.1",
-    "lodash.uniqby": "^4.7.0",
     "normalize.css": "^8.0.0",
     "prop-types": "^15.6.1",
     "react": "^16.2.0",
@@ -39,6 +39,7 @@
     "react-redux": "^5.0.7",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
+    "react-router-redux": "^5.0.0-alpha.9",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
     "styled-components": "^3.2.3"
@@ -46,6 +47,7 @@
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.4",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
     "clean-webpack-plugin": "^0.1.19",

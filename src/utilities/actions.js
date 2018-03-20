@@ -1,11 +1,16 @@
+import { push } from 'react-router-redux';
 import { fetchFS, normalize } from 'utilities/foursquare';
+import { saveStorage, clearStorage } from 'utilities/localstorage';
 import config from 'utilities/config';
 
-// Out action list
+// Action list
 export const START_SEARCH = 'START_SEARCH';
 export const STOP_SEARCH = 'STOP_SEARCH';
-export const ERROR_SEARCH = 'ERROR_SEARCH';
-export const ADD_SEARCH = 'ADD_SEARCH';
+export const UPDATE_SEARCH = 'UPDATE_SEARCH';
+export const CLEAR_SEARCH = 'CLEAR_SEARCH';
+export const BEEP_SEARCH = 'BEEP_SEARCH';
+export const SAVE_SEARCH = 'SAVE_SEARCH';
+export const CLEAR_ALL = 'CLEAR_ALL';
 
 /**
  * Redux action to start the search (visually).
@@ -13,37 +18,61 @@ export const ADD_SEARCH = 'ADD_SEARCH';
  * @param {string} near - the 'place' keyword from the DOM input
  * @return {object} An object with action type and query and near keywords
  */
-function startSearch(query, near) {
+const startSearch = (query, near) => {
   return {
     type: START_SEARCH,
     query,
     near
   };
-}
+};
 
 /**
- * Redux action to stop the search (visually).
- * @param {boolean} isEmpty - Is the search results empty? Defaults to false.
- * @return {object} An object with action type and isEmpty flag
+ * Action to stop the search (visually).
+ * @return {object} An object with just an action type
  */
-function stopSearch(isEmpty = false) {
+const stopSearch = () => {
+  return { type: STOP_SEARCH };
+};
+
+/**
+ * Action to update the search.
+ * @param {string} query - the 'looking for' keyword from the DOM input
+ * @param {string} near - the 'place' keyword from the DOM input
+ * @param {string} searchId - the ID of the current search
+ * @return {object} An object with just an action type
+ */
+const updateSearch = (query, near, searchId) => {
   return {
-    type: STOP_SEARCH,
-    isEmpty
+    type: UPDATE_SEARCH,
+    query,
+    near,
+    id: searchId
   };
-}
+};
 
 /**
- * Redux action to handle search errors
- * @param {object} msg - Error's message object
- * @return {object} An object with action type, isError flag and error message
+ * Action to reset the current search.
+ * @public
+ * @return {object} An object with just an action type
  */
-function errorSearch(msg) {
+export const clearSearch = () => {
+  return { type: CLEAR_SEARCH };
+};
+
+/**
+ * Action to handle the messages, warnings and errors.
+ * @param {number} type - Message's importance on a 0 to 2 scale:
+ * Notifications (0), warnings (1) and errors (2)
+ * @param {object/string} text - Message text
+ * @param {string} title - Message title (Optional)
+ * @return {object} An object with action type, message type and text
+ */
+const beepSearch = (type, text, title = '') => {
   /**
    * A little helper to parse the Error object. It will be supplied to the
    * Json.stringify as a second 'replacer' argument.
    */
-  function replaceErrors(key, value) {
+  const replaceErrors = (key, value) => {
     if (value instanceof Error) {
       var error = {};
       Object.getOwnPropertyNames(value).forEach(function(key) {
@@ -52,39 +81,85 @@ function errorSearch(msg) {
       return error;
     }
     return value;
-  }
+  };
 
   return {
-    type: ERROR_SEARCH,
-    isError: true,
-    errorMsg: typeof msg == 'object' ? JSON.stringify(msg, replaceErrors) : msg
+    type: BEEP_SEARCH,
+    msgType: type,
+    msgTitle: title,
+    msgText:
+      type == 2
+        ? typeof text == 'object' ? JSON.stringify(text, replaceErrors) : text
+        : text
   };
-}
+};
 
 /**
- * Redux action for adding a search result to the store
+ * Action for adding a search result to the store
  * @param {string} query - the 'looking for' keyword from the DOM input
  * @param {string} near - the 'place' keyword from the DOM input
  * @return {object} An object with action type, query and near keywords and
  * separated properties for the search and its entities.
  */
-function addSearch(query, near, normResp) {
+const saveSearch = (query, near, normResp) => {
   return {
-    type: ADD_SEARCH,
+    type: SAVE_SEARCH,
     query,
     near,
     search: normResp.search,
     entities: normResp.entities
   };
-}
+};
 
 /**
- * This is a public (wrapper) function to organize the fetching and saving data
- * flow with a Promise based structure. The logic below is self-explanatory.
+ * Action to check the store for saved searches and retrieve them
+ * @public
+ * @param  {string} searchId -
+ * @return  {function}
+ */
+export const getSearch = searchId => {
+  return (dispatch, getState) => {
+    // Cache store
+    const state = getState();
+    const search = state.searches[searchId];
+
+    // Check store and if there is match update the search entity
+    if (state.searches[searchId]) {
+      dispatch(updateSearch(search.query, search.near, search.id));
+    } else {
+      // If no match found go back to home and be ready for next search
+      dispatch(push('/'));
+      dispatch(clearSearch());
+      dispatch(beepSearch(1, config.UI_messages.no_match_found_text));
+    }
+  };
+};
+
+/**
+ * Action to save the 'searches' and 'entities' to localstorage
+ * @return  {function}
+ */
+const saveStateToLocalstorage = () => {
+  return (dispatch, getState) => {
+    const currentState = getState();
+    saveStorage({
+      searches: currentState.searches,
+      entities: currentState.entities
+    });
+  };
+};
+
+/**
+ * Action to fetch data from Foursquare.
+ * This is a wrapper function to organize the fetching and saving
+ * data flow with a Promise based structure. The logic below is
+ * self-explanatory.
+ * @public
  * @param  {string} query - the 'looking for' keyword from the DOM input
  * @param  {string} near - the 'place' keyword from the DOM input
+ * @return  {function}
  */
-export function fetchFoursquare(query, near) {
+export const fetchFoursquare = (query, near) => {
   return dispatch => {
     // First visually start the search
     dispatch(startSearch(query, near));
@@ -106,22 +181,35 @@ export function fetchFoursquare(query, near) {
           if (response.meta.code === 200) {
             // Check if there is any result
             if (response.response.totalResults == 0) {
-              // If no results, stop the search with 'true' flag
-              // to inform the UI that the results are empty.
-              setTimeout(() => dispatch(stopSearch(true)), config.UI_delay);
-            } else {
-              // Otherwise stop the search and proceed with adding the results
-              // to our Redux store
+              // If no results, stop the search and inform the UI
+              // that the results are empty.
               setTimeout(() => {
                 dispatch(stopSearch());
-                dispatch(addSearch(query, near, normalize(response)));
+                dispatch(
+                  beepSearch(1, config.UI_messages.no_results_found_text)
+                );
+              }, config.UI_delay);
+            } else {
+              // Otherwise stop the search, save the results to the Redux store
+              // and change the url to search/:id
+              setTimeout(() => {
+                dispatch(stopSearch());
+                dispatch(saveSearch(query, near, normalize(response)));
+                dispatch(saveStateToLocalstorage());
+                dispatch(push('/search/' + response.meta.requestId));
               }, config.UI_delay);
             }
           } else {
             // If the server responds us with a satuts code othan than 200
             // proceed with error handling
             dispatch(stopSearch());
-            dispatch(errorSearch(response.meta.errorDetail));
+            dispatch(
+              beepSearch(
+                2,
+                response.meta.errorDetail,
+                config.UI_messages.api_response_title
+              )
+            );
           }
         })
 
@@ -129,8 +217,30 @@ export function fetchFoursquare(query, near) {
         // stop the search and parse the errors
         .catch(error => {
           dispatch(stopSearch());
-          dispatch(errorSearch(error));
+          dispatch(beepSearch(3, error, config.UI_messages.error_title));
         })
     );
   };
-}
+};
+
+/**
+ * Clears Redux store
+ * @return {object} An object with just an action type
+ */
+const clearStore = () => {
+  return { type: CLEAR_ALL };
+};
+
+/**
+ * Returns to home, clears Redux store and localstorage
+ * and congratulates you for all you've done.
+ * @public
+ */
+export const clearAll = () => {
+  return dispatch => {
+    dispatch(push('/'));
+    dispatch(clearStore());
+    clearStorage();
+    dispatch(beepSearch(0, config.UI_messages.cleared_all));
+  };
+};
