@@ -62,7 +62,9 @@ module.exports = {
       no_venue_photo_title: 'Nothing to see',
       no_venue_photo_text:
         'It looks like nobody has taken any pictures of this place yet.',
-      no_recent_search_text: 'All clear here.'
+      no_recent_search_text: 'All clear here.',
+      zero_herenow_count_text: 'Nobody is here right now.',
+      no_tips_text: 'No tips left yet.'
     },
 
     search_result_sep: ' in ' // Beer 'in' London

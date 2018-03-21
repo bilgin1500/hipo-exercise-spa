@@ -13,6 +13,7 @@ import Header from 'components/Header';
 import MainResults from 'components/MainResults';
 import MainVenueDetail from 'components/MainVenueDetail';
 import Footer from 'components/Footer';
+import { ScrollToTop } from 'components/Atoms';
 import config from 'utilities/config';
 import 'images/favicon-16x16';
 import 'images/favicon-32x32';
@@ -23,7 +24,7 @@ ReactDOM.render(
   <Provider store={store}>
     <DocumentTitle title={config.app.title}>
       <ConnectedRouter history={history}>
-        <div>
+        <ScrollToTop>
           <Route path="/:endpoint?/:id?" component={Header} />
           <Route
             path={`/${config.app.endpoints.search}/:id`}
@@ -36,7 +37,7 @@ ReactDOM.render(
             component={MainVenueDetail}
           />
           <Route path="*" component={Footer} />
-        </div>
+        </ScrollToTop>
       </ConnectedRouter>
     </DocumentTitle>
   </Provider>,

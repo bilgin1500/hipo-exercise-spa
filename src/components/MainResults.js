@@ -26,7 +26,7 @@ import {
 } from 'components/Atoms';
 import {
   VenueCard,
-  VenueHereNow,
+  VenueMetaBlock,
   VenuePrice,
   VenueRating,
   VenueImage
@@ -83,7 +83,11 @@ const Venue = props => (
     <VenueInfoWrapper>
       <VenueTitle gotham="book">{props.name}</VenueTitle>
       <VenueMetaWrapper>
-        <VenueHereNow count={props.hereNow} />
+        <VenueMetaBlock
+          text={props.hereNow}
+          icon="person"
+          alt="Here now count"
+        />
         <VenuePrice range={props.price} />
         <VenueRatingWrapper rating={props.rating} />
       </VenueMetaWrapper>

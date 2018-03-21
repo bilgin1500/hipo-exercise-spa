@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from 'react-router';
 import styled from 'styled-components';
 import {
   clearfix,
@@ -188,8 +189,8 @@ export const Loader = styled.div`
 
 export const Wrapper = styled.section`
   ${clearfix()};
-  max-width: 1040px;
-  padding: 40px;
+  max-width: 1020px;
+  padding: 30px;
   padding-bottom: 0;
   margin: 0 auto;
   box-sizing: border-box;
@@ -241,3 +242,18 @@ export const MainMessage = props => (
     </Paragraph>
   </div>
 );
+
+// This either..
+class ScrollToTopComponent extends React.Component {
+  componentDidUpdate(prevProps) {
+    if (this.props.location !== prevProps.location) {
+      console.log('ScrollToTop');
+      window.scrollTo(0, 0);
+    }
+  }
+  render() {
+    return this.props.children;
+  }
+}
+
+export const ScrollToTop = withRouter(ScrollToTopComponent);

@@ -4,6 +4,7 @@ import { Route } from 'react-router-dom';
 import Logo from 'components/Logo';
 import Search from 'components/Search';
 import Welcome from 'components/HeaderWelcome';
+import { VenueHeader } from 'components/VenueAtoms';
 import { clearfix, media } from 'utilities/style-mixins';
 import imgBg from 'images/background';
 
@@ -11,14 +12,15 @@ const Header = styled.header`
   text-align: center;
   background-size: cover;
   background-image: url(${imgBg});
-  padding: 0 30px 30px 30px;
 `;
 
 const HeaderWrapper = styled.div`
   ${clearfix};
   width: 100%;
-  max-width: 960px;
+  max-width: 1020px;
   margin: 0 auto;
+  padding: 0 30px 30px 30px;
+  box-sizing: border-box;
 `;
 
 export default props => (
@@ -26,7 +28,9 @@ export default props => (
     <HeaderWrapper>
       <Route path="/:endpoint?/:id?" component={Logo} />
       <Route path="/" exact component={Welcome} />
-      <Route path="/:endpoint?/:id?" component={Search} />
+      <Route path="/search/:id" exact component={Search} />
+      <Route path="/" exact component={Search} />
     </HeaderWrapper>
+    <Route path="/venue/:id" component={VenueHeader} />
   </Header>
 );

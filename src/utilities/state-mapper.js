@@ -90,9 +90,19 @@ export const mapStateToVenue = (state, ownProps) => {
       id: currentVenue.id,
       name: currentVenue.name,
       rating: currentVenue.rating,
+      address: currentVenue.address,
+      phone: currentVenue.phone,
       price: currentVenue.price,
       hereNow: currentVenue.hereNow,
-      categories: [],
+      categories: currentVenue.categories.length
+        ? currentVenue.categories.map(id => {
+            return {
+              id: id,
+              name: state.entities.categories[id].name,
+              iconUrl: state.entities.categories[id].iconUrl
+            };
+          })
+        : [],
       photos: currentVenue.photos.length
         ? currentVenue.photos.map(photo => {
             return {

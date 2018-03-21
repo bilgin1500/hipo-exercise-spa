@@ -21,7 +21,8 @@ const Form = styled.form`
   max-width: 600px;
   ${media.laptop`
     margin: 0 auto 135px auto;
-    ${props => isSearch`${props}
+    ${props =>
+      isSearch`${props}
       float: right;
       text-align: center;
       margin:0;
@@ -115,7 +116,7 @@ class Search extends React.Component {
     return (
       <Form
         onSubmit={this.handleSubmit}
-        endpoint={this.props.match.params.endpoint}
+        pathname={this.props.location.pathname}
       >
         <SearchInput
           placeholder="I’m looking for"

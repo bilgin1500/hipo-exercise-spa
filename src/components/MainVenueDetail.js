@@ -3,8 +3,10 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { mapStateToVenue } from 'utilities/state-mapper';
 import { capitalize, buildTitle } from 'utilities/helpers';
+import { media } from 'utilities/style-mixins';
 import config from 'utilities/config';
 import DocumentTitle from 'react-document-title';
+import { VenueCard, VenueImage } from 'components/VenueAtoms';
 import {
   Paragraph,
   Heading,
@@ -15,17 +17,17 @@ import {
   SidebarItem,
   MainMessage
 } from 'components/Atoms';
-import {
-  VenueCard,
-  VenueHereNow,
-  VenuePrice,
-  VenueRating,
-  VenueImage
-} from 'components/VenueAtoms';
 
 /**
  * Sidebar atoms
  */
+
+const VenueSidebar = styled(Sidebar)`
+  background-color: #fff;
+  ${media.laptop`
+    margin-top: -85px;
+  `};
+`;
 
 const Avatar = styled.img`
   display: block;
@@ -58,17 +60,6 @@ const TipText = Paragraph.extend`
 /**
  * Venue meta atoms
  */
-
-// Header
-
-const VenueTitle = Heading.extend`
-  font-size: 4em;
-  text-align: left;
-`;
-
-const VenueRatingWrapper = styled(VenueRating)``;
-
-// Photos
 
 const VenuePhoto = VenueImage.extend`
   opacity: 1;
@@ -141,18 +132,24 @@ const VenueDetail = props => {
             />
           )}
         </Main>
-        <Sidebar>
+        <VenueSidebar>
           <SidebarHeading gotham="medium">Tips</SidebarHeading>
-          {props.venue.tips.map(tip => (
-            <SidebarItem key={tip.id}>
-              <Avatar src={tip.userPhoto} alt={tip.userName} />
-              <TipWrapper>
-                <TipUser gotham="medium">{tip.userName}</TipUser>
-                <TipText gotham="book">{tip.text}</TipText>
-              </TipWrapper>
-            </SidebarItem>
-          ))}
-        </Sidebar>
+          {props.venue.tips.length ? (
+            props.venue.tips.map(tip => (
+              <SidebarItem key={tip.id}>
+                <Avatar src={tip.userPhoto} alt={tip.userName} />
+                <TipWrapper>
+                  <TipUser gotham="medium">{tip.userName}</TipUser>
+                  <TipText gotham="book">{tip.text}</TipText>
+                </TipWrapper>
+              </SidebarItem>
+            ))
+          ) : (
+            <Paragraph gotham="book" color="#999">
+              {config.UI.messages.no_tips_text}
+            </Paragraph>
+          )}
+        </VenueSidebar>
       </Wrapper>
     </DocumentTitle>
   );

@@ -26,13 +26,13 @@ export const media = Object.keys(sizes).reduce((acc, label) => {
 }, {});
 
 /**
- * On truthy values the function parses the css
+ * If it's not the home page the function parses the css
  * @param  {array} args - Argument array: css and prop
  * @return {string} css string
  */
 export const isSearch = (...args) => {
   const [cssString, props] = [...args];
-  if (props.endpoint == config.app.endpoints.search) {
+  if (props.pathname.indexOf(config.app.endpoints.search) > -1) {
     return cssString[1];
   }
 };

@@ -24,7 +24,8 @@ const LogoWrapper = styled.a.attrs({
   margin: 0 auto -30px auto;
   box-sizing: border-box;
   transition: background-color 200ms, transform 300ms;
-  ${props => isSearch`${props}
+  ${props =>
+    isSearch`${props}
     max-width: 180px;
     max-height: 180px;
   `}
@@ -32,7 +33,8 @@ const LogoWrapper = styled.a.attrs({
     margin-bottom:-50px
   `} 
   ${media.laptop`  
-    ${props => isSearch`${props}
+    ${props =>
+      isSearch`${props}
       float:left;
     `}
   `}
@@ -50,7 +52,8 @@ const LogoWrapper = styled.a.attrs({
     ${media.tablet`
       bottom: 50px;
       right: 50px;
-      ${props => isSearch`${props}
+      ${props =>
+        isSearch`${props}
         bottom:20px;
         right:20px;
       `}
@@ -96,7 +99,7 @@ const Logo = class App extends React.Component {
   render() {
     return (
       <LogoWrapper
-        endpoint={this.props.match.params.endpoint}
+        pathname={this.props.location.pathname}
         onClick={this.props.onClick}
         innerRef={tag => {
           this.elements.LogoWrapper = tag;

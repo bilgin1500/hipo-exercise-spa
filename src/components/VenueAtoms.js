@@ -1,10 +1,19 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Paragraph } from 'components/Atoms';
+import { connect } from 'react-redux';
+import { mapStateToVenue } from 'utilities/state-mapper';
+import { Heading, Paragraph } from 'components/Atoms';
 import { media } from 'utilities/style-mixins';
+import config from 'utilities/config';
 import { isUndefined, isNull } from 'utilities/helpers';
-import personIcon from 'images/person';
-import tagIcon from 'images/tag';
+
+// All the icons for meta blocks
+const icons = {
+  person: require('images/person'),
+  tag: require('images/tag'),
+  location: require('images/location'),
+  phone: require('images/phone')
+};
 
 /**
  * Venue card
@@ -63,20 +72,22 @@ const Icon = styled.img`
 `;
 
 /**
- * Here now count's paragraph
+ * Meta block for here now count, address, phone etc.
  */
 
-const HereNowParagraph = Paragraph.extend`
+const VenueMetaBlockParagraph = Paragraph.extend`
   font-size: 0.75em;
   margin: 0 30px 0 5px;
   display: inline-block;
   vertical-align: middle;
 `;
 
-export const VenueHereNow = props => (
+export const VenueMetaBlock = props => (
   <span>
-    <Icon src={personIcon} alt="Here now count" />
-    <HereNowParagraph gotham="medium">{props.count}</HereNowParagraph>
+    <Icon src={icons[props.icon]} alt={props.alt} />
+    <VenueMetaBlockParagraph gotham="medium">
+      {props.text}
+    </VenueMetaBlockParagraph>
   </span>
 );
 
@@ -120,7 +131,7 @@ const PriceBox = styled.div`
 export const VenuePrice = props => {
   return (
     <span>
-      {props.range > 0 && <Icon src={tagIcon} alt="Price range" />}
+      {props.range > 0 && <Icon src={icons.tag} alt="Price range" />}
       {props.range > 0 && (
         <PriceWrapper range={props.range}>
           <PriceBox bgColor="#c9c5ff" />
@@ -166,3 +177,142 @@ export const VenueRating = props => {
     )
   );
 };
+
+/**
+ * Venue header
+ */
+
+const VenueHeaderWrapper = styled.div`
+  ${media.laptop`
+    position: absolute:
+    bottom:0
+  `};
+`;
+
+const VenueHeaderCategoryWrapper = styled.div`
+  border: 3px solid #fff;
+  transform-origin: 50% 50%;
+  transform: rotate(45deg);
+  width: 150px;
+  height: 150px;
+  margin: -30px auto 30px auto;
+  > img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -25px;
+    margin-left: -25px;
+    width: 60px;
+    height: auto;
+    transform-origin: 50% 50%;
+    transform: rotate(-45deg);
+  }
+  ${media.laptop`
+    position: absolute;
+    top: 145px;
+    left: 50%;
+    margin:0 0 0 -200px;
+  `};
+`;
+
+const VenueHeaderTitle = Heading.extend`
+  font-size: 2em;
+  ${media.laptop`
+    font-size: 4em;
+    margin-top: 40px;
+  `};
+  text-align: left;
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 30px;
+  box-sizing: border-box;
+`;
+
+const VenueHeaderMetaWrapper = styled.div`
+  background-image: linear-gradient(
+    95deg,
+    rgba(30, 13, 180, 0.8),
+    rgba(228, 71, 71, 0.8)
+  );
+`;
+
+const VenueHeaderMetaInnerWrapper = styled.div`
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 20px 30px;
+  box-sizing: border-box;
+  position: relative;
+`;
+
+const VenueHeaderRating = styled(VenueRating)`
+  position: absolute;
+  margin-top:0
+  right: 40px;
+  top: -35px;
+  height:70px;
+  width:70px;
+  > p {
+    font-size: 1.125em;
+    top: 22px;
+    left: 22px;
+  }
+`;
+
+const VenueMetaBlockWrapper = styled.div`
+  margin-top: 10px;
+  text-align: left;
+  &:first-child {
+    margin-top: 0;
+  }
+`;
+
+export const VenueHeader = connect(mapStateToVenue)(({ venue }) => {
+  return (
+    <VenueHeaderWrapper>
+      {venue.categories.length && (
+        <VenueHeaderCategoryWrapper>
+          <Icon
+            src={venue.categories[0].iconUrl}
+            alt={venue.categories[0].name}
+          />
+        </VenueHeaderCategoryWrapper>
+      )}
+      <VenueHeaderTitle>{venue.name}</VenueHeaderTitle>
+      <VenueHeaderMetaWrapper>
+        <VenueHeaderMetaInnerWrapper>
+          {venue.address && (
+            <VenueMetaBlockWrapper>
+              <VenueMetaBlock
+                text={venue.address}
+                icon="location"
+                alt="Address"
+              />
+            </VenueMetaBlockWrapper>
+          )}
+          {venue.phone && (
+            <VenueMetaBlockWrapper>
+              <VenueMetaBlock
+                text={venue.phone}
+                icon="phone"
+                alt="Phone number"
+              />
+            </VenueMetaBlockWrapper>
+          )}
+          <VenueMetaBlockWrapper>
+            <VenueMetaBlock
+              text={
+                venue.hereNow == 0
+                  ? config.UI.messages.zero_herenow_count_text
+                  : venue.hereNow
+              }
+              icon="person"
+              alt="Here now count"
+            />
+            <VenuePrice range={venue.price} />
+          </VenueMetaBlockWrapper>
+          <VenueHeaderRating rating={venue.rating} />
+        </VenueHeaderMetaInnerWrapper>
+      </VenueHeaderMetaWrapper>
+    </VenueHeaderWrapper>
+  );
+});
