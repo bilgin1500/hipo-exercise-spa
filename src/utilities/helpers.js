@@ -22,6 +22,14 @@ export const isFunction = func => {
   return func && {}.toString.call(func) === '[object Function]';
 };
 
+/*
+  Is this an empty object?
+  @see https://stackoverflow.com/a/32108184/4707530
+ */
+export const isEmptyObj = obj => {
+  return Object.keys(obj).length === 0 && obj.constructor === Object;
+};
+
 /**
  * Make a string's first letter uppercase
  * @param {string} string - The string to be capitalized
@@ -95,13 +103,28 @@ export const timeAgo = date => {
 };
 
 /**
- * Document title changer
- * @param  {string} title - The subtitle before the '- Foursquared'
+ * Checks an id against a list
+ * @param  {string} id - The unique identifier to check
+ * @param  {object} list - The object to check against
+ * @return {boolean}
  */
-export const changeTitle = title => {
-  if (title) {
-    document.title = title + config.titleSep + config.title;
+export const checkList = (id, list) => {
+  if (isUndefined(id) || isUndefined(list[id])) {
+    return false;
+  }
+
+  return true;
+};
+
+/**
+ * Builds the title
+ * @param  {string} title - The string to prepend
+ * @return {string} The parameter prepended to the core page title
+ */
+export const buildTitle = title => {
+  if (isUndefined(title)) {
+    return config.app.title;
   } else {
-    document.title = config.title;
+    return title + config.app.title_sep + config.app.title;
   }
 };

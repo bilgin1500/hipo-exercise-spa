@@ -1,6 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import { media, GothamFamily, doubleBounce } from 'utilities/style-mixins';
+import {
+  clearfix,
+  media,
+  GothamFamily,
+  doubleBounce
+} from 'utilities/style-mixins';
 
 /*
 "Atoms are the basic building blocks of matter. Applied to web interfaces, atoms are our HTML tags, such as a form label, an input or a button." - Brad Frost
@@ -26,21 +31,38 @@ ScreenReaderText: Invisible text, for span, p etc.
  * Can be used with other tags: Heading.withComponent('h2')
  */
 export const Heading = styled.h1`
+  color: ${props => (props.color ? props.color : '#fff')};
   ${props => GothamFamily(props.gotham)};
   text-align: center;
   line-height: normal;
-  color: #fff;
+  margin: 0;
+`;
+
+export const SidebarHeading = Heading.extend`
+  text-transform: uppercase;
+  font-size: 1em;
+  color: #4a4a4a;
+  text-align: center;
+  &:after {
+    content: '';
+    display: block;
+    margin: 30px auto 20px auto;
+    border-radius: 3px;
+    width: 70px;
+    height: 2px;
+    background-color: #c4c0ff;
+  }
 `;
 
 /**
  * Paragraphs
  */
 export const Paragraph = styled.p`
+  color: ${props => (props.color ? props.color : '#fff')};
   ${props => GothamFamily(props.gotham)};
   font-size: 1em;
   text-align: center;
   line-height: normal;
-  color: #fff;
 `;
 
 /**
@@ -63,19 +85,16 @@ export const Input = styled.input`
   font-size: 0.875em;
   color: #333;
   background-color: #fff;
-  box-shadow: 0 12px 21px 0 rgba(0, 0, 0, 0.24);
+  box-shadow: 0 12px 21px 0 rgba(0, 0, 0, 0.25);
   display: block;
   box-sizing: border-box;
   width: 100%;
-  max-width: 300px;
   padding: 16px 20px 15px 20px;
   border: 0;
   border-radius: 4px;
-  margin: 0 auto 10px auto;
-  ${media.laptop`
+  ${media.tablet`
     display:inline-block;
     vertical-align: top;
-    margin: 0 10px 0 0;
   `};
 `;
 
@@ -86,18 +105,16 @@ const InputButton = Input.withComponent('button');
 export const Button = InputButton.extend`
   color: #fff;
   background-color: #ff5f5f;
-  padding: 11px 25px 12px;
+  padding: 11px 25px 8px;
   cursor: pointer;
-  margin: 0 auto 10px auto;
+  text-align: center;
   ${media.laptop`
     display:inline-block;
     vertical-align: top;
-    margin: 0;
     width: auto;
   `};
   > img {
-    display: block;
-    margin: 0 auto;
+    display: inline-block;
   }
   &:disabled {
     background-color: #ffa6a6;
@@ -165,3 +182,62 @@ export const Loader = styled.div`
   }
 `;
 
+/**
+ * Two column layout atoms for results and venue page
+ */
+
+export const Wrapper = styled.section`
+  ${clearfix()};
+  max-width: 1040px;
+  padding: 40px;
+  padding-bottom: 0;
+  margin: 0 auto;
+  box-sizing: border-box;
+`;
+
+export const Main = styled.main`
+  ${clearfix()};
+  float: left;
+  width: 100%;
+  ${media.laptop`
+    width:60%;
+  `};
+`;
+
+export const Sidebar = styled.aside`
+  float: right;
+  width: 100%;
+  padding: 30px;
+  margin-top: 20px;
+  box-shadow: 0 0 34px 0 rgba(255, 95, 95, 0.32);
+  box-sizing: border-box;
+  ${media.laptop`
+    margin-top:0;
+    width:35%;
+  `};
+`;
+
+// A single item in the sidebar
+// Used on search results list and tips list
+export const SidebarItem = styled.div`
+  ${props => GothamFamily(props.gotham)};
+  ${clearfix()};
+  display: block;
+  text-align: center;
+  padding: 20px 0;
+  border-bottom: 1px solid #e4e4e4;
+  &:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+`;
+
+// Ok, this isn't an atom but still..
+export const MainMessage = props => (
+  <div>
+    <Heading color="#4a4a4a">{props.title}</Heading>
+    <Paragraph gotham="book" color="#666">
+      {props.text}
+    </Paragraph>
+  </div>
+);

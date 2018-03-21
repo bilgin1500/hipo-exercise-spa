@@ -53,8 +53,8 @@ const currentSearch = (state = {}, action) => {
       return Object.assign({}, state, {
         query: action.query,
         near: action.near,
-        id: action.searchId,
-        isFetching: false
+        id: action.id,
+        isFetching: true
       });
 
     case CLEAR_SEARCH:
@@ -62,12 +62,7 @@ const currentSearch = (state = {}, action) => {
         query: '',
         near: '',
         id: null,
-        isFetching: false,
-        message: {
-          type: null,
-          title: '',
-          text: ''
-        }
+        isFetching: false
       });
 
     case SAVE_SEARCH:

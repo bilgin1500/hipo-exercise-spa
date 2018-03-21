@@ -31,10 +31,13 @@
   "dependencies": {
     "fontfaceobserver": "^2.0.13",
     "history": "^4.7.2",
+    "install": "^0.10.4",
     "lodash.merge": "^4.6.1",
     "normalize.css": "^8.0.0",
+    "npm": "^5.7.1",
     "prop-types": "^15.6.1",
     "react": "^16.2.0",
+    "react-document-title": "^2.0.3",
     "react-dom": "^16.2.0",
     "react-redux": "^5.0.7",
     "react-router": "^4.2.0",

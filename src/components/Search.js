@@ -4,25 +4,53 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { Input, Button, Loader } from 'components/Atoms';
-import { getSearch, fetchFoursquare, clearSearch } from 'utilities/actions';
-import { isUndefined } from 'utilities/helpers';
+import { fetchFoursquare } from 'utilities/actions';
+import { isUndefined, checkList } from 'utilities/helpers';
 import Message from 'components/Message';
-import { media } from 'utilities/style-mixins';
+import { clearfix, media, isSearch } from 'utilities/style-mixins';
 import iconMagnifier from 'images/magnifier';
+import config from 'utilities/config';
 
 /*
   Below are the dumb components we're going to use in the search panel.
   All the components are extended from the atoms we defined in components/atoms.js
  */
 
-const InputQuery = Input.extend`
-  border: ${props => (props.valid ? 'none' : '3px solid red')};
-  ${media.laptop`max-width: 290px;`};
+const Form = styled.form`
+  margin: 0 auto;
+  max-width: 600px;
+  ${media.laptop`
+    margin: 0 auto 135px auto;
+    ${props => isSearch`${props}
+      float: right;
+      text-align: center;
+      margin:0;
+      margin-top: 50px;
+      margin-right: 50px;
+      width: calc(100% - 250px);
+    `};
+  `};
 `;
 
-const InputPlace = Input.extend`
-  border: ${props => (props.valid ? 'none' : '3px solid red')};
-  ${media.laptop`max-width: 160px;`};
+const SearchInput = Input.extend`
+  box-shadow: ${props =>
+    props.valid
+      ? '0 12px 21px 0 rgba(0,0,0,0.25)'
+      : '0 0 21px 0 rgba(255, 95, 95, 0.85)'};
+  margin-bottom: 10px;
+  ${media.tablet`
+    width: 40%;
+    margin-right: 2%;
+    margin-bottom:0;
+  `};
+`;
+
+const Submit = Button.extend`
+  ${media.tablet`width: 16%;`};
+  transition: background-color 250ms;
+  &:hover {
+    background-color: #e24848;
+  }
 `;
 
 const SearchLoader = Loader.extend`
@@ -55,15 +83,6 @@ class Search extends React.Component {
     }
   }
 
-  handleSearch() {
-    // Check if a previous made search is requested from the parameters
-    var searchId = this.props.match.params.id;
-
-    if (!isUndefined(searchId)) {
-      this.props.dispatch(getSearch(searchId));
-    }
-  }
-
   handleSubmit(e) {
     e.preventDefault();
     const query = this.InputQuery.value;
@@ -79,38 +98,46 @@ class Search extends React.Component {
   }
 
   componentDidMount() {
-    this.handleSearch();
     this.handleInputs();
   }
 
+  componentWillReceiveProps(newProps) {
+    if (newProps.near && newProps.query) {
+      this.setState({ isValidated: true });
+    }
+  }
+
   componentDidUpdate() {
-    this.handleSearch();
     this.handleInputs();
   }
 
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
-        <InputQuery
+      <Form
+        onSubmit={this.handleSubmit}
+        endpoint={this.props.match.params.endpoint}
+      >
+        <SearchInput
           placeholder="I’m looking for"
           innerRef={tag => (this.InputQuery = tag)}
           defaultValue={this.props.query}
           valid={this.state.isValidated}
         />
-        <InputPlace
+        <SearchInput
           placeholder="Place"
           innerRef={tag => (this.InputPlace = tag)}
           defaultValue={this.props.near}
           valid={this.state.isValidated}
         />
-        <Button onClick={this.handleSubmit} disabled={this.props.isFetching}>
+        <Submit onClick={this.handleSubmit} disabled={this.props.isFetching}>
           <img src={iconMagnifier} />
-        </Button>
+        </Submit>
 
-        {this.props.isFetching && <SearchLoader color="#ff5f5f" />}
+        {this.props.isFetching &&
+          this.props.match.url == '/' && <SearchLoader color="#ff5f5f" />}
 
         <Message {...this.props.message} />
-      </form>
+      </Form>
     );
   }
 }

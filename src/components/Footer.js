@@ -1,11 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link } from 'components/Atoms';
+import { media } from 'utilities/style-mixins';
 
 const navItems = [
-  { name: 'About us', href: '#' },
-  { name: 'Contact', href: '#' },
-  { name: 'Blog', href: '#' }
+  { name: 'About us', href: '#/' },
+  { name: 'Contact', href: '#/' },
+  { name: 'Blog', href: '#/' }
 ];
 
 const LinkFooter = Link.extend`
@@ -15,8 +16,10 @@ const LinkFooter = Link.extend`
 `;
 
 const Nav = styled.nav`
-  border-top: ${props => (!props.border ? '2px solid #e3e3e3' : 'none')};
-  padding-top: ${props => (!props.border ? '40px' : '0')};
+  ${media.laptop`
+    border-top: ${props => (!props.border ? '2px solid #e3e3e3' : 'none')};
+    padding-top: ${props => (!props.border ? '40px' : '0')};
+  `};
   max-width: 1040px;
   margin: 0 auto;
 `;

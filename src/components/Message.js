@@ -31,7 +31,6 @@ const MsgWrapper = styled.div`
 
 const MsgHeading = Heading.withComponent('h2').extend`
   font-size: 1.3125em;
-  margin-top: 0;
   margin-bottom: 15px;
 `;
 

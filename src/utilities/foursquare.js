@@ -57,7 +57,7 @@ export const fetchFS = params => {
  * @return {object} Normalized object according to our store's shape
  *
  * Response:  developer.foursquare.com/docs/api/venues/explore
- * Store:     utilities/state.js
+ * Store:     utilities/state-structure.js
  */
 export const normalize = response => {
   // Let's start with a structure similar to our app's final state.
@@ -94,6 +94,14 @@ export const normalize = response => {
         photos = [],
         tips = [];
 
+      // Little helper to build the full names
+      const buildName = (name, surname) => {
+        return (
+          (isUndefined(name) ? '' : name) +
+          (isUndefined(surname) ? '' : ' ' + surname)
+        );
+      };
+
       /*
       Map all the tips to the empty array
       (entities.venues.UNIQUE_ID.tips)
@@ -103,7 +111,7 @@ export const normalize = response => {
           // Extract the tip's user to the user entity
           normalized.entities.users[tip.user.id] = {
             id: tip.user.id,
-            name: tip.user.firstName + ' ' + tip.user.lastName,
+            name: buildName(tip.user.firstName, tip.user.lastName),
             photoUrl:
               tip.user.photo.prefix +
               config.foursquare_api.photo_size +
@@ -112,8 +120,9 @@ export const normalize = response => {
 
           // Save the reference of the user and tip's text
           return {
-            userId: tip.user.id,
-            text: tip.text
+            id: tip.id,
+            text: tip.text,
+            userId: tip.user.id
           };
         });
       }
@@ -130,17 +139,20 @@ export const normalize = response => {
               // Extract the photo's user to the user entity
               normalized.entities.users[photo.user.id] = {
                 id: photo.user.id,
-                name: photo.user.firstName + ' ' + photo.user.lastName,
+                name: buildName(photo.user.firstName, photo.user.lastName),
                 photoUrl:
                   photo.prefix + config.foursquare_api.photo_size + photo.suffix
               };
 
               // Save the reference of the user and photo url
               photos.push({
-                userId: photo.user.id,
+                id: photo.id,
                 type: group.type,
                 url:
-                  photo.prefix + config.foursquare_api.photo_size + photo.suffix
+                  photo.prefix +
+                  config.foursquare_api.photo_size +
+                  photo.suffix,
+                userId: photo.user.id
               });
             });
           }

@@ -2,16 +2,18 @@ import 'normalize.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { Route, Switch } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import history from 'utilities/history';
 import store from 'utilities/store';
+import { checkUrlParams } from 'utilities/actions';
 import { globalCss } from 'utilities/style-global';
-import PageLoader from 'components/PageLoader';
+import DocumentTitle from 'react-document-title';
 import Header from 'components/Header';
-import Results from 'components/Results';
-import VenueDetail from 'components/VenueDetail';
+import MainResults from 'components/MainResults';
+import MainVenueDetail from 'components/MainVenueDetail';
 import Footer from 'components/Footer';
+import config from 'utilities/config';
 import 'images/favicon-16x16';
 import 'images/favicon-32x32';
 
@@ -19,14 +21,24 @@ globalCss();
 
 ReactDOM.render(
   <Provider store={store}>
-    <ConnectedRouter history={history}>
-      <div>
-        <Route path="/:endpoint?/:id?" component={Header} />
-        <Route path="/search/:id" exact component={Results} />
-        <Route path="/venue/:id" exact component={VenueDetail} />
-        <Route path="*" component={Footer} />
-      </div>
-    </ConnectedRouter>
+    <DocumentTitle title={config.app.title}>
+      <ConnectedRouter history={history}>
+        <div>
+          <Route path="/:endpoint?/:id?" component={Header} />
+          <Route
+            path={`/${config.app.endpoints.search}/:id`}
+            exact
+            component={MainResults}
+          />
+          <Route
+            path={`/${config.app.endpoints.venue}/:id`}
+            exact
+            component={MainVenueDetail}
+          />
+          <Route path="*" component={Footer} />
+        </div>
+      </ConnectedRouter>
+    </DocumentTitle>
   </Provider>,
   document.getElementById('app')
 );

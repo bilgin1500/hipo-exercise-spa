@@ -31,7 +31,7 @@ module.exports = {
           {
             loader: 'file-loader',
             options: {
-              outputPath: config.webpack.outputAssetsFolder + '/',
+              outputPath: config.webpack.output_assets_folder + '/',
               name: '[name].[ext]'
             }
           }
@@ -44,8 +44,8 @@ module.exports = {
     ]
   },
   devServer: {
-    contentBase: path.resolve(__dirname, config.webpack.outputFolder),
-    port: config.webpack.devServerPort,
+    contentBase: path.resolve(__dirname, config.webpack.output_folder),
+    port: config.webpack.dev_server_port,
     historyApiFallback: { index: '/' },
     open: true,
     hot: true,
@@ -86,7 +86,7 @@ module.exports = {
     new CleanWebpackPlugin(['dist'], { verbose: true }),
     new HtmlWebpackPlugin({
       template: HtmlWebpackTemplate,
-      title: config.title,
+      title: config.app.title,
       favicon: './src/assets/images/favicon.ico',
       links: [
         {
@@ -102,12 +102,12 @@ module.exports = {
           type: 'image/png'
         }
       ],
-      //devServer: 'http://localhost:' + config.webpack.devServerPort,
+      //devServer: 'http://localhost:' + config.webpack.dev_server_port,
       meta: [
         { name: 'robots', content: 'noindex,nofollow' },
         {
           name: 'description',
-          content: config.description
+          content: config.app.description
         }
       ],
       mobile: true,
@@ -127,7 +127,7 @@ module.exports = {
     new CopyWebpackPlugin([
       {
         from: './src/assets/fonts/**/*',
-        to: config.webpack.outputAssetsFolder + '/fonts',
+        to: config.webpack.output_assets_folder + '/fonts',
         flatten: true
       }
     ])

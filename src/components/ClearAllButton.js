@@ -28,6 +28,7 @@ ClearAllButton.propTypes = {
 const mapDispatchToProps = dispatch => {
   return {
     onClick: e => {
+      e.preventDefault();
       dispatch(clearAll());
     }
   };

@@ -1,4 +1,5 @@
 import { css, keyframes } from 'styled-components';
+import config from 'utilities/config';
 
 // All styles are mobile-first so We define only bigger resolutions:
 // mobile < tablet < laptop < desktop
@@ -9,9 +10,7 @@ const sizes = {
 };
 
 /**
- * [description]
- * @param  {[type]} sizes).reduce((acc, label)        [description]
- * @return {[type]}                     [description]
+ * @see https://github.com/styled-components/styled-components/blob/master/docs/tips-and-tricks.md#media-templates
  */
 export const media = Object.keys(sizes).reduce((acc, label) => {
   // use em in breakpoints to work properly cross-browser and support users
@@ -25,6 +24,18 @@ export const media = Object.keys(sizes).reduce((acc, label) => {
   `;
   return acc;
 }, {});
+
+/**
+ * On truthy values the function parses the css
+ * @param  {array} args - Argument array: css and prop
+ * @return {string} css string
+ */
+export const isSearch = (...args) => {
+  const [cssString, props] = [...args];
+  if (props.endpoint == config.app.endpoints.search) {
+    return cssString[1];
+  }
+};
 
 /**
  * The ancient (but still useful) clear fix

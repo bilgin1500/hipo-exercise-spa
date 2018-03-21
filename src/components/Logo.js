@@ -3,14 +3,15 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { goHome } from 'utilities/actions';
-import { media } from 'utilities/style-mixins';
-import config from 'utilities/config';
+import { clearfix, media, isSearch } from 'utilities/style-mixins';
 import { ScreenReaderText } from 'components/Atoms';
 import iconLogo from 'images/logo';
+import config from 'utilities/config';
 
 // LogoWrapper is an <a> tag with <h1> and <img> inside
+// The most complicated dynamic css of the project :(
 const LogoWrapper = styled.a.attrs({
-  href: '#'
+  href: '#/'
 })`
   display: block;
   position: relative;
@@ -22,20 +23,37 @@ const LogoWrapper = styled.a.attrs({
   transform-origin: 50% 50%;
   margin: 0 auto -30px auto;
   box-sizing: border-box;
+  transition: background-color 200ms, transform 300ms;
+  ${props => isSearch`${props}
+    max-width: 180px;
+    max-height: 180px;
+  `}
   ${media.tablet`
     margin-bottom:-50px
-  `} > img {
+  `} 
+  ${media.laptop`  
+    ${props => isSearch`${props}
+      float:left;
+    `}
+  `}
+   &:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translate(0,-51%) rotate(45deg);
+  }
+  > img {
     position: absolute;
     bottom: 20px;
     right: 20px;
+    transition: bottom 200ms ease-out, right 200ms ease-out, transform 300ms;
     transform: rotate(-45deg);
     transform-origin: 50% 50%;
     ${media.tablet`
       bottom: 50px;
       right: 50px;
-    `} ${media.laptop`
-      bottom: 80px;
-      right: 80px;
+      ${props => isSearch`${props}
+        bottom:20px;
+        right:20px;
+      `}
     `};
   }
 `;
@@ -53,33 +71,39 @@ const Logo = class App extends React.Component {
   constructor() {
     super();
     this.elements = {};
-    this.setLogoWrapperWidth = this.setLogoWrapperWidth.bind(this);
+    this.setLogoHeight = this.setLogoHeight.bind(this);
   }
 
-  setLogoWrapperWidth() {
+  // Make the logo's height same with its width
+  setLogoHeight() {
     const { LogoWrapper } = this.elements;
     LogoWrapper.style.height = LogoWrapper.offsetWidth + 'px';
   }
 
-  componentDidMount() {
-    this.setLogoWrapperWidth();
-    window.addEventListener('resize', this.setLogoWrapperWidth);
+  addListener() {
+    setTimeout(this.setLogoHeight, 0);
+    window.addEventListener('resize', this.setLogoHeight);
   }
 
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.setLogoWrapperWidth);
+  componentDidMount() {
+    this.addListener();
+  }
+
+  componentWillUpdate() {
+    this.addListener();
   }
 
   render() {
     return (
       <LogoWrapper
+        endpoint={this.props.match.params.endpoint}
         onClick={this.props.onClick}
         innerRef={tag => {
           this.elements.LogoWrapper = tag;
         }}
       >
-        <img src={iconLogo} alt={config.title} />
-        <LogoText>{config.title}</LogoText>
+        <img src={iconLogo} alt={config.app.title} />
+        <LogoText>{config.app.title}</LogoText>
       </LogoWrapper>
     );
   }
@@ -92,6 +116,7 @@ Logo.propTypes = {
 const mapDispatchToProps = dispatch => {
   return {
     onClick: e => {
+      e.preventDefault();
       dispatch(goHome());
     }
   };
