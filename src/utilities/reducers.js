@@ -3,13 +3,14 @@ import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
 import { convertDate } from 'utilities/helpers';
 import {
-  START_SEARCH,
-  STOP_SEARCH,
-  UPDATE_SEARCH,
-  CLEAR_SEARCH,
-  BEEP_SEARCH,
+  START_FETCH,
+  STOP_FETCH,
+  UPDATE_FETCH,
   SAVE_SEARCH,
-  CLEAR_ALL
+  SAVE_VENUE,
+  CLEAR_FETCH,
+  CLEAR_ALL,
+  BEEP
 } from 'utilities/actions';
 
 /*
@@ -19,58 +20,57 @@ import {
  */
 
 /**
- * Handles the header page search logic. It starts and stops the search and
- * throw the error/message box when needed.
- * @param  {Object} state - Previous state ('currentSearch' entitiy is an array)
- * @param  {Object} action - Changes to the prev. state
+ * Handles all the fetching<->store relationship.
+ * @param  {Object} state - Previous, current state
+ * @param  {Object} action - Changes to the state through actions
  * @return {Object} Next state
  */
-const currentSearch = (state = {}, action) => {
+const currentFetch = (state = { isFetching: false }, action) => {
   switch (action.type) {
-    case START_SEARCH:
+    case START_FETCH:
       return Object.assign({}, state, {
         query: action.query,
         near: action.near,
+        venueId: action.venueId,
         isFetching: true,
-        message: {
-          type: null,
-          title: '',
-          text: ''
-        }
+        message: {}
       });
 
-    case STOP_SEARCH:
+    case STOP_FETCH:
       return Object.assign({}, state, {
         isFetching: false,
-        message: {
-          type: null,
-          title: '',
-          text: ''
-        }
+        message: {}
       });
 
-    case UPDATE_SEARCH:
+    case UPDATE_FETCH:
       return Object.assign({}, state, {
         query: action.query,
         near: action.near,
-        id: action.id,
+        searchId: action.searchId,
+        venueId: action.venueId,
         isFetching: true
       });
 
-    case CLEAR_SEARCH:
+    case CLEAR_FETCH:
       return Object.assign({}, state, {
         query: '',
         near: '',
-        id: null,
+        searchId: '',
+        venueId: '',
         isFetching: false
       });
 
     case SAVE_SEARCH:
       return Object.assign({}, state, {
-        id: action.search.id
+        searchId: action.search.id
       });
 
-    case BEEP_SEARCH:
+    case SAVE_VENUE:
+      return Object.assign({}, state, {
+        venueId: action.venueId
+      });
+
+    case BEEP:
       return Object.assign({}, state, {
         message: {
           type: action.msgType,
@@ -87,7 +87,7 @@ const currentSearch = (state = {}, action) => {
 /**
  * Handles the searches we've done so far. This reducer always saves a new
  * search to the store.
- * @param  {Object} state - Previous state. ('searches' entitiy is an array)
+ * @param  {Object} state - Previous state.
  * @param  {Object} action - Changes to the prev. state
  * @return {Object} Next state
  */
@@ -101,6 +101,7 @@ const searches = (state = {}, action) => {
             id: action.search.id,
             query: action.search.query,
             near: action.search.near,
+            location: action.search.location,
             results: action.search.results,
             createdAt: new Date()
           },
@@ -116,7 +117,7 @@ const searches = (state = {}, action) => {
 /**
  * Handles updating the entities.
  * @param  {Object} state - Previous state. ('entities' consists of all the
- * Foursquare entitites in a normalized shape)
+ * Foursquare entitites in a normalized structure)
  * @param  {Object} action - Changes to the prev. state
  * @return {Object} Next state
  */
@@ -127,12 +128,13 @@ const entities = (
   if (action.entities) {
     return merge({}, state, action.entities);
   }
+
   return state;
 };
 
 // https://redux.js.org/api-reference/combinereducers
 const appReducer = combineReducers({
-  currentSearch,
+  currentFetch,
   searches,
   entities,
   router: routerReducer

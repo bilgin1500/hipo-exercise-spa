@@ -4,7 +4,7 @@ import { Route } from 'react-router-dom';
 import Logo from 'components/Logo';
 import Search from 'components/Search';
 import Welcome from 'components/HeaderWelcome';
-import { VenueHeader } from 'components/VenueAtoms';
+import VenueHeader from 'components/VenueHeader';
 import { clearfix, media } from 'utilities/style-mixins';
 import imgBg from 'images/background';
 
@@ -28,7 +28,7 @@ export default props => (
     <HeaderWrapper>
       <Route path="/:endpoint?/:id?" component={Logo} />
       <Route path="/" exact component={Welcome} />
-      <Route path="/search/:id" exact component={Search} />
+      <Route path="/search/:id?" exact component={Search} />
       <Route path="/" exact component={Search} />
     </HeaderWrapper>
     <Route path="/venue/:id" component={VenueHeader} />

@@ -189,6 +189,7 @@ export const Loader = styled.div`
 
 export const Wrapper = styled.section`
   ${clearfix()};
+  position: relative;
   max-width: 1020px;
   padding: 30px;
   padding-bottom: 0;
@@ -244,10 +245,10 @@ export const MainMessage = props => (
 );
 
 // This either..
+// For more info: https://reacttraining.com/react-router/web/guides/scroll-restoration
 class ScrollToTopComponent extends React.Component {
   componentDidUpdate(prevProps) {
     if (this.props.location !== prevProps.location) {
-      console.log('ScrollToTop');
       window.scrollTo(0, 0);
     }
   }

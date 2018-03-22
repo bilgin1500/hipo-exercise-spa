@@ -4,15 +4,16 @@
   components' states like isDropDownOpen or isMenuExpanded.
 
   There are 3 main properties. 
-  "currentSearch" hold the data about the (last) active search.
+  "currentFetch" hold the data about the (last) active Foursquare fetch.
   "searches" array holds all the successful search requests done so far.
   "entities" are the Foursquare data in a normalized way. 
  */
 export default {
-  currentSearch: {
+  currentFetch: {
     query: 'STRING',
     near: 'STRING',
-    id: 'UNIQUE_ID',
+    searchId: 'UNIQUE_ID',
+    venueId: 'UNIQUE_ID',
 
     // Flag for loading state
     isFetching: false,
@@ -28,7 +29,8 @@ export default {
     UNIQUE_ID: {
       id: 'UNIQUE_ID',
       query: 'STRING',
-      near: 'STRING',
+      near: 'STRING', // our search parameter for a location
+      location: 'STRING', //the real, found location
       createdAt: '2018-03-19 13:40',
       results: ['UNIQUE_ID']
     }

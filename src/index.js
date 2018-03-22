@@ -27,16 +27,16 @@ ReactDOM.render(
         <ScrollToTop>
           <Route path="/:endpoint?/:id?" component={Header} />
           <Route
-            path={`/${config.app.endpoints.search}/:id`}
+            path={`/${config.app.endpoints.search}/:id?`}
             exact
             component={MainResults}
           />
           <Route
-            path={`/${config.app.endpoints.venue}/:id`}
+            path={`/${config.app.endpoints.venue}/:id?`}
             exact
             component={MainVenueDetail}
           />
-          <Route path="*" component={Footer} />
+          <Route component={Footer} />
         </ScrollToTop>
       </ConnectedRouter>
     </DocumentTitle>

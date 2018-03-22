@@ -1,62 +1,100 @@
 import { push } from 'react-router-redux';
-import { fetchFS, normalize } from 'utilities/foursquare';
+import { fetchFS } from 'utilities/foursquare';
+import { normalizeExplore, normalizeVenue } from 'utilities/normalizers';
 import { saveStorage, clearStorage } from 'utilities/localstorage';
-import { capitalize, isUndefined } from 'utilities/helpers';
+import { capitalize, isUndefined, isEmptyObj } from 'utilities/helpers';
 import config from 'utilities/config';
 
 // Action list
-export const START_SEARCH = 'START_SEARCH';
-export const STOP_SEARCH = 'STOP_SEARCH';
-export const UPDATE_SEARCH = 'UPDATE_SEARCH';
-export const CLEAR_SEARCH = 'CLEAR_SEARCH';
-export const BEEP_SEARCH = 'BEEP_SEARCH';
+export const START_FETCH = 'START_FETCH';
+export const STOP_FETCH = 'STOP_FETCH';
+export const UPDATE_FETCH = 'UPDATE_FETCH';
 export const SAVE_SEARCH = 'SAVE_SEARCH';
+export const SAVE_VENUE = 'SAVE_VENUE';
+export const CLEAR_FETCH = 'CLEAR_FETCH';
 export const CLEAR_ALL = 'CLEAR_ALL';
+export const BEEP = 'BEEP';
 
 /**
- * Redux action to start the search.
- * @param {string} query - the 'looking for' keyword from the DOM input
- * @param {string} near - the 'place' keyword from the DOM input
+ * Redux action to start any fetch.
+ * @param {string} query - the FS keyword 'query', what are we looking for?
+ * @param {string} near - the FS keyword 'near', where are looking?
+ * @param {string} venueId - the FS 'id' of the venue to look for
  * @return {object} An object with action type and query and near keywords
  */
-export const startSearch = (query, near) => {
+export const startFetch = (query, near, venueId) => {
   return {
-    type: START_SEARCH,
-    query,
-    near
-  };
-};
-
-/**
- * Action to stop the search (visually).
- * @return {object} An object with just an action type
- */
-export const stopSearch = () => {
-  return { type: STOP_SEARCH };
-};
-
-/**
- * Action to update the search.
- * @param {string} query - the 'looking for' keyword from the DOM input
- * @param {string} near - the 'place' keyword from the DOM input
- * @param {string} searchId - the ID of the current search
- * @return {object} An object with just an action type
- */
-export const updateSearch = (query, near, searchId) => {
-  return {
-    type: UPDATE_SEARCH,
+    type: START_FETCH,
     query,
     near,
-    id: searchId
+    venueId
   };
 };
 
 /**
- * Action to reset the current search.
+ * Action to stop the fetch (visually).
  * @return {object} An object with just an action type
  */
-export const clearSearch = () => {
-  return { type: CLEAR_SEARCH };
+export const stopFetch = () => {
+  return { type: STOP_FETCH };
+};
+
+/**
+ * Action to update the fetch.
+ * @param {string} query - the FS keyword 'query', what are we looking for?
+ * @param {string} near - the FS keyword 'near', where are looking?
+ * @param {string} searchId - the ID of the current search
+ * @param {string} venueId - the ID of the current venue
+ * @return {object} An object with just an action type
+ */
+export const updateFetch = (query, near, searchId, venueId) => {
+  return {
+    type: UPDATE_FETCH,
+    query,
+    near,
+    searchId,
+    venueId
+  };
+};
+
+/**
+ * Action to add a fetched search result to the store
+ * @param {object} normalizedResponse - the response from the 'normalizeExplore' method which contains the 'search' property
+ * @return {object} An object with action type, query, near, location keywords and
+ * the separated properties for the search and its entities.
+ */
+export const saveSearch = normalizedResponse => {
+  return {
+    type: SAVE_SEARCH,
+    query: normalizedResponse.search.query,
+    near: normalizedResponse.search.near,
+    location: normalizedResponse.search.location,
+    search: normalizedResponse.search,
+    entities: normalizedResponse.entities
+  };
+};
+
+/**
+ * Action to add a fetched search result to the store
+ * @param {object} normalizedResponse - the response from the
+ * 'normalizeExplore' method which contains the 'search' property
+ * @return {object} An object with action type, venueId and new entities with
+ * a venue item containing photos or tips.
+ */
+export const saveVenue = (normalizedResponse, venueId) => {
+  return {
+    type: SAVE_VENUE,
+    venueId: venueId,
+    entities: normalizedResponse.entities
+  };
+};
+
+/**
+ * Action to reset the current fetch.
+ * @return {object} An object with just an action type
+ */
+export const clearFetch = () => {
+  return { type: CLEAR_FETCH };
 };
 
 /**
@@ -67,7 +105,7 @@ export const clearSearch = () => {
  * @param {string} title - Message title (Optional)
  * @return {object} An object with action type, message type and text
  */
-export const beepSearch = (type, text, title = '') => {
+export const beep = (type, text, title = '') => {
   /**
    * A little helper to parse the Error object. It will be supplied to the
    * Json.stringify as a second 'replacer' argument.
@@ -84,30 +122,13 @@ export const beepSearch = (type, text, title = '') => {
   };
 
   return {
-    type: BEEP_SEARCH,
+    type: BEEP,
     msgType: type,
     msgTitle: title,
     msgText:
-      type == 2
+      type == 3
         ? typeof text == 'object' ? JSON.stringify(text, replaceErrors) : text
         : text
-  };
-};
-
-/**
- * Action for adding a search result to the store
- * @param {string} query - the 'looking for' keyword from the DOM input
- * @param {string} near - the 'place' keyword from the DOM input
- * @return {object} An object with action type, query and near keywords and
- * separated properties for the search and its entities.
- */
-export const saveSearch = (query, near, normResp) => {
-  return {
-    type: SAVE_SEARCH,
-    query,
-    near,
-    search: normResp.search,
-    entities: normResp.entities
   };
 };
 
@@ -130,18 +151,21 @@ export const saveStateToLocalstorage = () => {
  * This is a wrapper function to organize the fetching and saving
  * data flow with a Promise based structure. The logic below is
  * self-explanatory.
- * @param  {string} query - the 'looking for' keyword from the DOM input
- * @param  {string} near - the 'place' keyword from the DOM input
+ * @param  {string} params.endpoint - 'Explore', 'photos' or 'tips'
+ * @param  {string} params.query - What are we looking for?
+ * @param  {string} params.near - Where are we looking for?
+ * @param  {string} params.venueId - Unique (Foursquare) ID of the venue
  * @return  {function}
  */
-export const fetchFoursquare = (query, near) => {
+export const fetchFoursquare = (params = {}) => {
   return dispatch => {
-    // First visually start the search
-    dispatch(startSearch(query, near));
+    if (isEmptyObj(params)) return;
 
-    // Then begin to fetch the data
-    return (
-      fetchFS({
+    const { endpoint, query, near, venueId } = params;
+    let fetchParams = {};
+
+    if (endpoint == 'explore') {
+      fetchParams = {
         endpoint: 'explore',
         params: {
           query: query,
@@ -149,7 +173,24 @@ export const fetchFoursquare = (query, near) => {
           limit: config.foursquare_api.limit,
           venuePhotos: true
         }
-      })
+      };
+    } else if (endpoint == 'photos' || endpoint == 'tips') {
+      fetchParams = {
+        endpoint: venueId,
+        field: endpoint,
+        params: {
+          group: 'venue',
+          limit: config.foursquare_api.limit
+        }
+      };
+    }
+
+    // First visually start the search
+    dispatch(startFetch(query, near, venueId));
+
+    // Then begin to fetch the data
+    return (
+      fetchFS(fetchParams)
         // When the results arrive convert them to readebla json format
         .then(response => {
           return response.json();
@@ -164,27 +205,34 @@ export const fetchFoursquare = (query, near) => {
               // If no results, stop the search and inform the UI
               // that the results are empty.
               setTimeout(() => {
-                dispatch(stopSearch());
-                dispatch(
-                  beepSearch(1, config.UI.messages.no_results_found_text)
-                );
+                dispatch(stopFetch());
+                dispatch(beep(1, config.UI.messages.no_results_found_text));
               }, config.UI.delay);
             } else {
-              // Otherwise stop the search, save the results to the Redux store
-              // and change the url to search/:id
+              // Otherwise stop the search, proceed with
+              // merging data and related logic
               setTimeout(() => {
-                dispatch(stopSearch());
-                dispatch(saveSearch(query, near, normalize(response)));
-                dispatch(saveStateToLocalstorage());
-                dispatch(goSearch(response.meta.requestId, query, near));
+                dispatch(stopFetch());
+                if (endpoint == 'explore') {
+                  dispatch(saveSearch(normalizeExplore(response)));
+                  dispatch(saveStateToLocalstorage());
+                  dispatch(goToSearchPage(response.meta.requestId));
+                } else if (endpoint == 'photos' || endpoint == 'tips') {
+                  // We're adding the venue id because on the response
+                  // from the server there isn't any information about the venue
+                  dispatch(
+                    saveVenue(normalizeVenue(response, venueId), venueId)
+                  );
+                  dispatch(saveStateToLocalstorage());
+                }
               }, config.UI.delay);
             }
           } else {
             // If the server responds us with a satuts code othan than 200
             // proceed with error handling
-            dispatch(stopSearch());
+            dispatch(stopFetch());
             dispatch(
-              beepSearch(
+              beep(
                 2,
                 response.meta.errorDetail,
                 config.UI.messages.api_response_title
@@ -196,8 +244,10 @@ export const fetchFoursquare = (query, near) => {
         // If any errros happened during the process
         // stop the search and parse the errors
         .catch(error => {
-          dispatch(stopSearch());
-          dispatch(beepSearch(3, error, config.UI.messages.error_title));
+          setTimeout(() => {
+            dispatch(stopFetch());
+            dispatch(beep(3, error, config.UI.messages.error_title));
+          }, config.UI.delay);
         })
     );
   };
@@ -206,7 +256,7 @@ export const fetchFoursquare = (query, near) => {
 /**
  * Clears the current search and go back to home
  */
-export const goHome = () => {
+export const goToHomePage = () => {
   return dispatch => {
     dispatch(push('/'));
   };
@@ -216,7 +266,7 @@ export const goHome = () => {
  * Go to a specific search page
 
  */
-export const goSearch = (id, query, near) => {
+export const goToSearchPage = id => {
   return dispatch => {
     dispatch(push('/' + config.app.endpoints.search + '/' + id));
   };
@@ -236,9 +286,9 @@ export const clearStore = () => {
  */
 export const clearAll = () => {
   return dispatch => {
-    dispatch(goHome());
+    dispatch(goToHomePage());
     dispatch(clearStore());
     clearStorage();
-    dispatch(beepSearch(0, config.UI.messages.cleared_all));
+    dispatch(beep(0, config.UI.messages.cleared_all));
   };
 };

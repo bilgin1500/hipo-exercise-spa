@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Heading, Paragraph } from 'components/Atoms';
 import { fadeOut, go } from 'utilities/style-mixins';
-import { isUndefined, isNull } from 'utilities/helpers';
+import { isUndefined, isNull, isEmptyObj } from 'utilities/helpers';
 
 const MsgWrapper = styled.div`
   background-color: ${props => {
@@ -45,27 +45,14 @@ class Message extends React.Component {
     super();
   }
 
-  shouldRender() {
-    return (
-      !isUndefined(this.props.type) &&
-      !isUndefined(this.props.text) &&
-      !isNull(this.props.type) &&
-      !isNull(this.props.text)
-    );
-  }
-
-  /*shouldComponentUpdate() {
-    return shouldRender();
-  }*/
-
   render() {
-    if (this.shouldRender()) {
+    if (!isUndefined(this.props.message) && !isEmptyObj(this.props.message)) {
       return (
-        <MsgWrapper type={this.props.type}>
-          {this.props.title && (
-            <MsgHeading gotham="medium">{this.props.title}</MsgHeading>
+        <MsgWrapper type={this.props.message.type}>
+          {this.props.message.title && (
+            <MsgHeading gotham="medium">{this.props.message.title}</MsgHeading>
           )}
-          <MsgText gotham="book">{this.props.text}</MsgText>
+          <MsgText gotham="book">{this.props.message.text}</MsgText>
         </MsgWrapper>
       );
     }
@@ -75,9 +62,11 @@ class Message extends React.Component {
 }
 
 Message.propTypes = {
-  type: PropTypes.number,
-  title: PropTypes.string,
-  text: PropTypes.string
+  message: PropTypes.shape({
+    type: PropTypes.number,
+    title: PropTypes.string,
+    text: PropTypes.string
+  })
 };
 
 export default Message;

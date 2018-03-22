@@ -1,8 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { mapStateToResults } from 'utilities/state-mapper';
-import { updateSearch, stopSearch, clearSearch } from 'utilities/actions';
+import { updateFetch, stopFetch, clearFetch } from 'utilities/actions';
 import config from 'utilities/config';
 import DocumentTitle from 'react-document-title';
 import ClearAllButton from 'components/ClearAllButton';
@@ -113,43 +114,39 @@ class Results extends React.Component {
 
   getTitle() {
     if (this.checkParams()) {
-      return buildTitle(
-        capitalize(this.props.currentSearch.query) +
-          config.UI.search_result_sep +
-          capitalize(this.props.currentSearch.near)
-      );
+      return this.props.currentFetch.title;
     } else {
       return buildTitle(config.UI.messages.no_match_found_title);
     }
   }
 
   updateStoreForSearch(query, near, id) {
-    this.props.dispatch(updateSearch(query, near, id));
+    this.props.dispatch(updateFetch(query, near, id));
     setTimeout(() => {
-      this.props.dispatch(stopSearch());
+      this.props.dispatch(stopFetch());
     }, config.UI.delay);
   }
 
   componentDidMount() {
     this.updateStoreForSearch(
-      this.props.currentSearch.query,
-      this.props.currentSearch.near,
-      this.props.currentSearch.id
+      this.props.currentFetch.query,
+      this.props.currentFetch.near,
+      this.props.currentFetch.id
     );
   }
 
   componentWillReceiveProps(newProps) {
     if (this.props.match.params.id !== newProps.match.params.id) {
       this.updateStoreForSearch(
-        newProps.currentSearch.query,
-        newProps.currentSearch.near,
-        newProps.currentSearch.id
+        newProps.currentFetch.query,
+        newProps.currentFetch.near,
+        newProps.currentFetch.id
       );
     }
   }
 
   componentWillUnmount() {
-    this.props.dispatch(clearSearch());
+    this.props.dispatch(clearFetch());
   }
 
   render() {
@@ -164,10 +161,15 @@ class Results extends React.Component {
               />
             )}
 
-            {this.props.isFetching ? (
+            <Heading color="#4a4a4a">{this.props.currentFetch.title}</Heading>
+            <Paragraph color="#666" gotham="book">
+              {this.props.currentFetch.longTitle}
+            </Paragraph>
+
+            {this.props.currentFetch.isFetching ? (
               <Loader color="#ccc" />
             ) : (
-              this.props.venues.map(venue => (
+              this.props.currentFetch.results.map(venue => (
                 <Venue {...venue} key={venue.id} />
               ))
             )}
@@ -179,7 +181,7 @@ class Results extends React.Component {
                 <SearchLink
                   key={id}
                   href={`#/${config.app.endpoints.search}/${id}`}
-                  title={`Searched ${this.props.searches[id].timeAgo}`}
+                  title={this.props.searches[id].longTitle}
                   gotham="medium"
                 >
                   {this.props.searches[id].title}
@@ -197,5 +199,18 @@ class Results extends React.Component {
     );
   }
 }
+
+Results.propTypes = {
+  dispatch: PropTypes.func.isRequired,
+  currentFetch: PropTypes.shape({
+    isFetching: PropTypes.bool.isRequired,
+    query: PropTypes.string.isRequired,
+    near: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    longTitle: PropTypes.string.isRequired,
+    results: PropTypes.array.isRequired
+  }),
+  searches: PropTypes.object.isRequired
+};
 
 export default connect(mapStateToResults)(Results);

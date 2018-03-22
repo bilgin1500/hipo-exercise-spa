@@ -13,6 +13,10 @@ const LinkFooter = Link.extend`
   font-size: 0.75em;
   padding: 10px;
   color: #9b9b9b;
+  display: block;
+  ${media.tablet`
+    display:inline-block
+  `};
 `;
 
 const Nav = styled.nav`

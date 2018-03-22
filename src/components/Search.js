@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
+import { mapStateToHeaderSearch } from 'utilities/state-mapper';
 import { Input, Button, Loader } from 'components/Atoms';
 import { fetchFoursquare } from 'utilities/actions';
 import { isUndefined, checkList } from 'utilities/helpers';
@@ -19,6 +20,10 @@ import config from 'utilities/config';
 const Form = styled.form`
   margin: 0 auto;
   max-width: 600px;
+  ${props =>
+    isSearch`${props}
+      margin-top: 20px;
+    `};
   ${media.laptop`
     margin: 0 auto 135px auto;
     ${props =>
@@ -70,29 +75,35 @@ class Search extends React.Component {
   }
 
   handleInputs() {
-    const query = this.props.query;
-    const near = this.props.near;
+    const query = this.props.currentFetch.query;
+    const near = this.props.currentFetch.near;
 
     this.InputQuery.value = query || '';
-    this.InputPlace.value = near || '';
+    this.InputNear.value = near || '';
 
     if (isUndefined(query) || near == '') {
       this.InputQuery.focus();
     } else {
       this.InputQuery.blur();
-      this.InputPlace.blur();
+      this.InputNear.blur();
     }
   }
 
   handleSubmit(e) {
     e.preventDefault();
     const query = this.InputQuery.value;
-    const place = this.InputPlace.value;
+    const near = this.InputNear.value;
 
     // The most basic form validation
-    if (query && place) {
+    if (query && near) {
       this.setState({ isValidated: true });
-      this.props.dispatch(fetchFoursquare(query, place));
+      this.props.dispatch(
+        fetchFoursquare({
+          endpoint: 'explore',
+          query,
+          near
+        })
+      );
     } else {
       this.setState({ isValidated: false });
     }
@@ -103,7 +114,7 @@ class Search extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (newProps.near && newProps.query) {
+    if (newProps.currentFetch.near && newProps.currentFetch.query) {
       this.setState({ isValidated: true });
     }
   }
@@ -121,41 +132,43 @@ class Search extends React.Component {
         <SearchInput
           placeholder="I’m looking for"
           innerRef={tag => (this.InputQuery = tag)}
-          defaultValue={this.props.query}
+          defaultValue={this.props.currentFetch.query}
           valid={this.state.isValidated}
         />
         <SearchInput
           placeholder="Place"
-          innerRef={tag => (this.InputPlace = tag)}
-          defaultValue={this.props.near}
+          innerRef={tag => (this.InputNear = tag)}
+          defaultValue={this.props.currentFetch.near}
           valid={this.state.isValidated}
         />
-        <Submit onClick={this.handleSubmit} disabled={this.props.isFetching}>
+        <Submit
+          onClick={this.handleSubmit}
+          disabled={this.props.currentFetch.isFetching}
+        >
           <img src={iconMagnifier} />
         </Submit>
 
-        {this.props.isFetching &&
+        {this.props.currentFetch.isFetching &&
           this.props.match.url == '/' && <SearchLoader color="#ff5f5f" />}
 
-        <Message {...this.props.message} />
+        <Message message={this.props.currentFetch.message} />
       </Form>
     );
   }
 }
 
 Search.propTypes = {
-  id: PropTypes.string,
-  query: PropTypes.string,
-  near: PropTypes.string,
-  isFetching: PropTypes.bool,
-  message: PropTypes.shape({
-    type: PropTypes.number,
-    title: PropTypes.string,
-    text: PropTypes.string
-  }),
-  dispatch: PropTypes.func.isRequired
+  dispatch: PropTypes.func.isRequired,
+  currentFetch: PropTypes.shape({
+    isFetching: PropTypes.bool.isRequired,
+    query: PropTypes.string,
+    near: PropTypes.string,
+    message: PropTypes.shape({
+      type: PropTypes.number,
+      title: PropTypes.string,
+      text: PropTypes.string
+    })
+  })
 };
 
-export default withRouter(
-  connect(({ currentSearch }) => ({ ...currentSearch }))(Search)
-);
+export default withRouter(connect(mapStateToHeaderSearch)(Search));

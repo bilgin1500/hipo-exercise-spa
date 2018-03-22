@@ -128,3 +128,16 @@ export const buildTitle = title => {
     return title + config.app.title_sep + config.app.title;
   }
 };
+
+/**
+ * The ultimate full name builder
+ * @param  {string} name
+ * @param  {string} surname
+ * @return {string} Full name!
+ */
+export const buildName = (name, surname) => {
+  return (
+    (isUndefined(name) ? '' : name) +
+    (isUndefined(surname) ? '' : ' ' + surname)
+  );
+};

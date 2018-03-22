@@ -1,11 +1,12 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { mapStateToVenue } from 'utilities/state-mapper';
 import { Heading, Paragraph } from 'components/Atoms';
 import { media } from 'utilities/style-mixins';
 import config from 'utilities/config';
-import { isUndefined, isNull } from 'utilities/helpers';
+import { isUndefined, isNull, isEmptyObj } from 'utilities/helpers';
 
 // All the icons for meta blocks
 const icons = {
@@ -13,6 +14,32 @@ const icons = {
   tag: require('images/tag'),
   location: require('images/location'),
   phone: require('images/phone')
+};
+
+//Proptype validation for venue data containers:
+//MainVenueDetail.js and VenueHeader.js
+export const propTypes = {
+  dispatch: PropTypes.func.isRequired,
+  currentFetch: PropTypes.shape({
+    isFetching: PropTypes.bool.isRequired,
+    message: PropTypes.shape({
+      type: PropTypes.number,
+      title: PropTypes.string,
+      text: PropTypes.string
+    })
+  }),
+  venue: PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+    rating: PropTypes.number,
+    address: PropTypes.string,
+    phone: PropTypes.string,
+    price: PropTypes.number,
+    hereNow: PropTypes.number,
+    categories: PropTypes.array,
+    photos: PropTypes.array,
+    tips: PropTypes.array
+  })
 };
 
 /**
@@ -34,7 +61,7 @@ export const VenueCard = styled.a`
   ${media.tablet`
     width: 48%;
     margin-right: 4%;
-    &:nth-child(2n) {
+    &:nth-of-type(2n) {
       margin-right: 0;
     }
   `};
@@ -66,7 +93,7 @@ export const VenueImage = styled(Image)`
  * Icons in the meta wrapper
  */
 
-const Icon = styled.img`
+export const Icon = styled.img`
   display: inline-block;
   vertical-align: middle;
 `;
@@ -177,142 +204,3 @@ export const VenueRating = props => {
     )
   );
 };
-
-/**
- * Venue header
- */
-
-const VenueHeaderWrapper = styled.div`
-  ${media.laptop`
-    position: absolute:
-    bottom:0
-  `};
-`;
-
-const VenueHeaderCategoryWrapper = styled.div`
-  border: 3px solid #fff;
-  transform-origin: 50% 50%;
-  transform: rotate(45deg);
-  width: 150px;
-  height: 150px;
-  margin: -30px auto 30px auto;
-  > img {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-top: -25px;
-    margin-left: -25px;
-    width: 60px;
-    height: auto;
-    transform-origin: 50% 50%;
-    transform: rotate(-45deg);
-  }
-  ${media.laptop`
-    position: absolute;
-    top: 145px;
-    left: 50%;
-    margin:0 0 0 -200px;
-  `};
-`;
-
-const VenueHeaderTitle = Heading.extend`
-  font-size: 2em;
-  ${media.laptop`
-    font-size: 4em;
-    margin-top: 40px;
-  `};
-  text-align: left;
-  max-width: 1020px;
-  margin: 0 auto;
-  padding: 30px;
-  box-sizing: border-box;
-`;
-
-const VenueHeaderMetaWrapper = styled.div`
-  background-image: linear-gradient(
-    95deg,
-    rgba(30, 13, 180, 0.8),
-    rgba(228, 71, 71, 0.8)
-  );
-`;
-
-const VenueHeaderMetaInnerWrapper = styled.div`
-  max-width: 1020px;
-  margin: 0 auto;
-  padding: 20px 30px;
-  box-sizing: border-box;
-  position: relative;
-`;
-
-const VenueHeaderRating = styled(VenueRating)`
-  position: absolute;
-  margin-top:0
-  right: 40px;
-  top: -35px;
-  height:70px;
-  width:70px;
-  > p {
-    font-size: 1.125em;
-    top: 22px;
-    left: 22px;
-  }
-`;
-
-const VenueMetaBlockWrapper = styled.div`
-  margin-top: 10px;
-  text-align: left;
-  &:first-child {
-    margin-top: 0;
-  }
-`;
-
-export const VenueHeader = connect(mapStateToVenue)(({ venue }) => {
-  return (
-    <VenueHeaderWrapper>
-      {venue.categories.length && (
-        <VenueHeaderCategoryWrapper>
-          <Icon
-            src={venue.categories[0].iconUrl}
-            alt={venue.categories[0].name}
-          />
-        </VenueHeaderCategoryWrapper>
-      )}
-      <VenueHeaderTitle>{venue.name}</VenueHeaderTitle>
-      <VenueHeaderMetaWrapper>
-        <VenueHeaderMetaInnerWrapper>
-          {venue.address && (
-            <VenueMetaBlockWrapper>
-              <VenueMetaBlock
-                text={venue.address}
-                icon="location"
-                alt="Address"
-              />
-            </VenueMetaBlockWrapper>
-          )}
-          {venue.phone && (
-            <VenueMetaBlockWrapper>
-              <VenueMetaBlock
-                text={venue.phone}
-                icon="phone"
-                alt="Phone number"
-              />
-            </VenueMetaBlockWrapper>
-          )}
-          <VenueMetaBlockWrapper>
-            <VenueMetaBlock
-              text={
-                venue.hereNow == 0
-                  ? config.UI.messages.zero_herenow_count_text
-                  : venue.hereNow
-              }
-              icon="person"
-              alt="Here now count"
-            />
-            <VenuePrice range={venue.price} />
-          </VenueMetaBlockWrapper>
-          <VenueHeaderRating rating={venue.rating} />
-        </VenueHeaderMetaInnerWrapper>
-      </VenueHeaderMetaWrapper>
-    </VenueHeaderWrapper>
-  );
-});

@@ -1,12 +1,19 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Redirect } from 'react-router';
 import styled from 'styled-components';
 import { mapStateToVenue } from 'utilities/state-mapper';
-import { capitalize, buildTitle } from 'utilities/helpers';
+import { fetchFoursquare } from 'utilities/actions';
 import { media } from 'utilities/style-mixins';
 import config from 'utilities/config';
 import DocumentTitle from 'react-document-title';
-import { VenueCard, VenueImage } from 'components/VenueAtoms';
+import { VenueCard, VenueImage, propTypes } from 'components/VenueAtoms';
+import {
+  capitalize,
+  buildTitle,
+  isEmptyObj,
+  isUndefined
+} from 'utilities/helpers';
 import {
   Paragraph,
   Heading,
@@ -15,7 +22,8 @@ import {
   Sidebar,
   SidebarHeading,
   SidebarItem,
-  MainMessage
+  MainMessage,
+  Loader
 } from 'components/Atoms';
 
 /**
@@ -61,6 +69,16 @@ const TipText = Paragraph.extend`
  * Venue meta atoms
  */
 
+const MainLoader = Loader.extend`
+  margin-bottom: 20px;
+`;
+
+const VenuePhotoCardWrapper = VenueCard.extend`
+  &:hover > div {
+    transform: translateY(0);
+  }
+`;
+
 const VenuePhoto = VenueImage.extend`
   opacity: 1;
 `;
@@ -74,6 +92,8 @@ const VenuePhotoUserWrapper = styled.div`
   left: 0;
   z-index: 2;
   background-color: rgba(18, 25, 95, 0.5);
+  transform: translateY(100%);
+  transition: transform 150ms ease-out;
 `;
 
 const VenuePhotoUsername = Heading.extend`
@@ -101,7 +121,7 @@ const VenuePhotoAvatarImg = styled.img`
 `;
 
 const VenuePhotoCard = props => (
-  <VenueCard>
+  <VenuePhotoCardWrapper>
     <VenuePhotoUserWrapper>
       <VenuePhotoAvatarWrapper>
         <VenuePhotoAvatarImg src={props.userPhoto} alt={props.userName} />
@@ -109,50 +129,90 @@ const VenuePhotoCard = props => (
       <VenuePhotoUsername gotham="medium">{props.userName}</VenuePhotoUsername>
     </VenuePhotoUserWrapper>
     <VenuePhoto src={props.src} alt={props.name} />
-  </VenueCard>
+  </VenuePhotoCardWrapper>
 );
 
 /**
  * Layout
  */
 
-const VenueDetail = props => {
-  return (
-    <DocumentTitle title={buildTitle(capitalize(props.venue.name))}>
-      <Wrapper>
-        <Main>
-          {props.venue.photos.length ? (
-            props.venue.photos.map((photo, index) => (
-              <VenuePhotoCard {...photo} key={photo.id} />
-            ))
-          ) : (
-            <MainMessage
-              title={config.UI.messages.no_venue_photo_title}
-              text={config.UI.messages.no_venue_photo_text}
-            />
-          )}
-        </Main>
-        <VenueSidebar>
-          <SidebarHeading gotham="medium">Tips</SidebarHeading>
-          {props.venue.tips.length ? (
-            props.venue.tips.map(tip => (
-              <SidebarItem key={tip.id}>
-                <Avatar src={tip.userPhoto} alt={tip.userName} />
-                <TipWrapper>
-                  <TipUser gotham="medium">{tip.userName}</TipUser>
-                  <TipText gotham="book">{tip.text}</TipText>
-                </TipWrapper>
-              </SidebarItem>
-            ))
-          ) : (
-            <Paragraph gotham="book" color="#999">
-              {config.UI.messages.no_tips_text}
-            </Paragraph>
-          )}
-        </VenueSidebar>
-      </Wrapper>
-    </DocumentTitle>
-  );
-};
+class VenueDetail extends React.Component {
+  constructor() {
+    super();
+  }
+
+  componentDidMount() {
+    if (!isEmptyObj(this.props.venue) && !isUndefined(this.props.venue.id)) {
+      this.props.dispatch(
+        fetchFoursquare({
+          endpoint: 'photos',
+          venueId: this.props.venue.id
+        })
+      );
+      this.props.dispatch(
+        fetchFoursquare({
+          endpoint: 'tips',
+          venueId: this.props.venue.id
+        })
+      );
+    }
+  }
+
+  render() {
+    return isEmptyObj(this.props.venue) || isUndefined(this.props.venue.id) ? (
+      <Redirect to="/" />
+    ) : (
+      <DocumentTitle title={buildTitle(capitalize(this.props.venue.name))}>
+        <Wrapper>
+          <Main>
+            {this.props.currentFetch.isFetching && <MainLoader color="#ccc" />}
+
+            {!isUndefined(this.props.currentFetch.message) &&
+              !isEmptyObj(this.props.currentFetch.message) && (
+                <MainMessage
+                  title={config.UI.messages.couldnt_fetch_venue_items_title}
+                  text={config.UI.messages.couldnt_fetch_venue_items_text}
+                />
+              )}
+
+            {this.props.venue.photos.length ? (
+              this.props.venue.photos.map((photo, index) => (
+                <VenuePhotoCard {...photo} key={photo.id} />
+              ))
+            ) : (
+              <MainMessage
+                title={config.UI.messages.no_venue_photo_title}
+                text={config.UI.messages.no_venue_photo_text}
+              />
+            )}
+          </Main>
+          <VenueSidebar>
+            <SidebarHeading gotham="medium">Tips</SidebarHeading>
+            {this.props.currentFetch.isFetching && <MainLoader color="#ccc" />}
+
+            {this.props.venue.tips.length ? (
+              this.props.venue.tips.map(tip => (
+                <SidebarItem key={tip.id}>
+                  <Avatar src={tip.userPhoto} alt={tip.userName} />
+                  <TipWrapper>
+                    <TipUser gotham="medium">{tip.userName}</TipUser>
+                    <TipText gotham="book">{tip.text}</TipText>
+                  </TipWrapper>
+                </SidebarItem>
+              ))
+            ) : (
+              <Paragraph gotham="book" color="#999">
+                {config.UI.messages.no_tips_text}
+              </Paragraph>
+            )}
+          </VenueSidebar>
+        </Wrapper>
+      </DocumentTitle>
+    );
+  }
+}
+
+// Proptypes validation
+VenueDetail.propTypes = propTypes;
 
 export default connect(mapStateToVenue)(VenueDetail);

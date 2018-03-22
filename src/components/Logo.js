@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Redirect } from 'react-router';
 import { connect } from 'react-redux';
-import { goHome } from 'utilities/actions';
+import { goToHomePage } from 'utilities/actions';
 import { clearfix, media, isSearch } from 'utilities/style-mixins';
 import { ScreenReaderText } from 'components/Atoms';
 import iconLogo from 'images/logo';
@@ -77,6 +78,14 @@ const Logo = class App extends React.Component {
     this.setLogoHeight = this.setLogoHeight.bind(this);
   }
 
+  is404() {
+    return !(
+      this.props.location.pathname == '/' ||
+      this.props.match.params.endpoint == config.app.endpoints.search ||
+      this.props.match.params.endpoint == config.app.endpoints.venue
+    );
+  }
+
   // Make the logo's height same with its width
   setLogoHeight() {
     const { LogoWrapper } = this.elements;
@@ -97,7 +106,9 @@ const Logo = class App extends React.Component {
   }
 
   render() {
-    return (
+    return this.is404() ? (
+      <Redirect to="/" />
+    ) : (
       <LogoWrapper
         pathname={this.props.location.pathname}
         onClick={this.props.onClick}
@@ -120,7 +131,7 @@ const mapDispatchToProps = dispatch => {
   return {
     onClick: e => {
       e.preventDefault();
-      dispatch(goHome());
+      dispatch(goToHomePage());
     }
   };
 };
