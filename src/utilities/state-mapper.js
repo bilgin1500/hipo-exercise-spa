@@ -2,7 +2,8 @@ import { isUndefined, isNull, timeAgo, capitalize } from 'utilities/helpers';
 import config from 'utilities/config';
 
 /*
-  These mappers when bound to the components via 'connect' method of 'react-redux', are mapping the current state to the component props.
+  These mappers when bound to the components via 'connect' method of 'react-redux', 
+  are mapping the current state to the component props.
  */
 
 /**
@@ -24,7 +25,7 @@ export const mapStateToHeaderSearch = (state, ownProps) => {
 };
 
 /**
- * Maps the current state to the results page on MainResults.js
+ * Maps the current state to the results page on Results.js
  * @param  {object} state - Current store's state
  * @param  {object} ownProps - Current properties supplied to the component
  * @return {object} Final properties which will be injected into the component
@@ -122,7 +123,7 @@ export const mapStateToResults = (state, ownProps) => {
 };
 
 /**
- * Maps the current state to the venue detail page on MainVenueDetail.js
+ * Maps the current state to the venue detail page on VenueDetail.js
  * @param  {object} state - Current store's state
  * @param  {object} ownProps - Current properties supplied to the component
  * @return {object} Final properties which will be injected into the component
@@ -173,6 +174,8 @@ export const mapStateToVenue = (state, ownProps) => {
             };
           })
         : [],
+      tipsOffset: currentVenue.tipsOffset,
+      tipsCount: currentVenue.tipsCount,
       tips: currentVenue.tips.length
         ? currentVenue.tips.map(tip => {
             return {

@@ -70,10 +70,11 @@ const SearchLoader = Loader.extend`
 class Search extends React.Component {
   constructor() {
     super();
-    this.state = { isValidated: true };
+    this.state = { isValidated: true }; // The only little state living outside the Redux store
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+  // Prepare the inputs to the current situation
   handleInputs() {
     const query = this.props.currentFetch.query;
     const near = this.props.currentFetch.near;
@@ -89,6 +90,7 @@ class Search extends React.Component {
     }
   }
 
+  // Submit the form
   handleSubmit(e) {
     e.preventDefault();
     const query = this.InputQuery.value;
@@ -109,16 +111,18 @@ class Search extends React.Component {
     }
   }
 
-  componentDidMount() {
-    this.handleInputs();
-  }
-
+  // When new props arrive because of a location change
+  // we should also update the validation accordingly
   componentWillReceiveProps(newProps) {
     if (newProps.currentFetch.near && newProps.currentFetch.query) {
       this.setState({ isValidated: true });
     }
   }
 
+  // On mount and update also update the inputs
+  componentDidMount() {
+    this.handleInputs();
+  }
   componentDidUpdate() {
     this.handleInputs();
   }

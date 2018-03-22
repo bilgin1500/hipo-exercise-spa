@@ -3,6 +3,10 @@ import styled from 'styled-components';
 import { Heading, Paragraph } from 'components/Atoms';
 import { media } from 'utilities/style-mixins';
 
+/*
+ * Welcome text atoms
+ */
+
 const WelcomeWrapper = styled.div`
   width: 100%;
   max-width: 600px;
@@ -33,6 +37,7 @@ const ParagraphWelcome = Paragraph.extend`
   `};
 `;
 
+// The welcome component
 export default () => (
   <WelcomeWrapper>
     <HeadingWelcome>Lorem ipsum dolor sit!</HeadingWelcome>

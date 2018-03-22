@@ -1,10 +1,9 @@
-import merge from 'lodash.merge';
-import { isUndefined, buildName } from 'utilities/helpers';
+import mergeWith from 'lodash.mergewith';
+import { isUndefined, isEmptyObj, buildName } from 'utilities/helpers';
 import config from 'utilities/config';
 
 /*
-  Below are the normalizers for the data returning from Foursquare API.
-  The first one is the normalizer for 'explore' endpoint and the second one is the normalizer for venue endpoints like 'photos' and 'tips'
+  Below are the normalizers (converters) for the data returning from Foursquare API.
  */
 
 /**
@@ -89,7 +88,7 @@ const normalizeTips = items => {
 };
 
 /**
- * Explore endpoint normalizer
+ * 'Explore' normalizer
  * @public
  * @param {object} response - Full API response with meta and response properties
  * @return {object} Normalized object according to our store's shape
@@ -150,9 +149,12 @@ export const normalizeExplore = response => {
       }
 
       // Merge users and categories with the 'entities'
-      const mergedUsers = merge(normalPhotos.users, normalTips.users);
-      normalized.entities.users = merge(normalized.entities.users, mergedUsers);
-      normalized.entities.categories = merge(
+      const mergedUsers = mergeWith(normalPhotos.users, normalTips.users);
+      normalized.entities.users = mergeWith(
+        normalized.entities.users,
+        mergedUsers
+      );
+      normalized.entities.categories = mergeWith(
         normalized.entities.categories,
         normalCats.categories
       );
@@ -183,6 +185,13 @@ export const normalizeExplore = response => {
             : '',
         categories: normalCats.ref,
         photos: normalPhotos.photos,
+        tipsOffset: 0,
+        tipsCount:
+          isUndefined(item.venue.stats) ||
+          isEmptyObj(item.venue.stats) ||
+          isUndefined(item.venue.stats.tipCount)
+            ? 0
+            : item.venue.stats.tipCount,
         tips: normalTips.tips
       };
     });
@@ -192,18 +201,19 @@ export const normalizeExplore = response => {
 };
 
 /**
- * Venue endpoint normalizer
+ * 'Venue' normalizer
  * @public
  * @param {object} response - Full API response with meta and response
  * properties
  * @param {string} venueId - The Id of the venue. Unfortunately's not
  * available on the response :(
+ * @param {number} tipsOffset - Tips' offset parameter
  * @return {object} Normalized object according to our store's shape
  * Response: developer.foursquare.com/docs/api/venues/photos
  * developer.foursquare.com/docs/api/venues/tips Store:
  * utilities/state-structure.js
  */
-export const normalizeVenue = (response, venueId) => {
+export const normalizeVenue = (response, venueId, tipsOffset) => {
   // The venue items (photos and tips) will be added to the current
   // venue entity and the 'entities' property's structure is the
   // same for easier merging.
@@ -218,6 +228,9 @@ export const normalizeVenue = (response, venueId) => {
       }
     }
   };
+
+  if (tipsOffset > 0)
+    normalized.entities.venues[venueId].tipsOffset = tipsOffset;
 
   // Normalize photos
   if (

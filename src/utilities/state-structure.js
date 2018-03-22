@@ -10,17 +10,13 @@
  */
 export default {
   currentFetch: {
-    query: 'STRING',
-    near: 'STRING',
-    searchId: 'UNIQUE_ID',
-    venueId: 'UNIQUE_ID',
-
-    // Flag for loading state
-    isFetching: false,
-
-    // Success (0), Notifications (1), warnings (2) and errors (3)
+    query: 'STRING', // What was my last searched keyword
+    near: 'STRING', // What was my last searched location
+    searchId: 'UNIQUE_ID', // What is the current search result I'm looking at
+    venueId: 'UNIQUE_ID', // What is the current venue I'm looking at
+    isFetching: false, // One global flag for all the fetching
     message: {
-      type: 0,
+      type: 0, // Success (0), Notifications (1), warnings (2) and errors (3)
       title: 'STRING',
       text: 'STRING'
     }
@@ -28,14 +24,15 @@ export default {
   searches: {
     UNIQUE_ID: {
       id: 'UNIQUE_ID',
-      query: 'STRING',
-      near: 'STRING', // our search parameter for a location
-      location: 'STRING', //the real, found location
-      createdAt: '2018-03-19 13:40',
-      results: ['UNIQUE_ID']
+      query: 'STRING', // what we're looking for?
+      near: 'STRING', // where we're looking for?
+      location: 'STRING', // where Foursquare is looking
+      createdAt: '2018-03-19 13:40', // when did we look
+      results: ['UNIQUE_ID'] // what did we get
     }
   },
   entities: {
+    // THE RELATIONAL DATABASE
     users: {
       UNIQUE_ID: {
         id: 'UNIQUE_ID',
@@ -60,6 +57,7 @@ export default {
         address: 'STRING',
         phone: 'STRING',
         categories: ['UNIQUE_ID'],
+        tipsOffset: 0,
         photos: [
           {
             userId: 'UNIQUE_ID',

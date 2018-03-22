@@ -1,4 +1,3 @@
-import FontFaceObserver from 'fontfaceobserver';
 import { injectGlobal } from 'styled-components';
 
 // Injector method of styled-components which appends
@@ -6,8 +5,7 @@ import { injectGlobal } from 'styled-components';
 // ! This should only be used once
 //
 // @see https://www.styled-components.com/docs/api#injectglobal
-export const globalCss = () => {
-  injectGlobal`
+injectGlobal`
   
   * {
     -webkit-font-smoothing: antialiased;
@@ -40,12 +38,3 @@ export const globalCss = () => {
   }
 
 `;
-};
-
-// To observe the fonts via js first define them
-// with the same familt-names used above
-//
-// @see https://fontfaceobserver.com/
-export const GothamBook = new FontFaceObserver('Gotham Book');
-export const GothamExtraLight = new FontFaceObserver('Gotham Extra Light');
-export const GothamMedium = new FontFaceObserver('Gotham Medium');

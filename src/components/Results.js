@@ -3,10 +3,14 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { mapStateToResults } from 'utilities/state-mapper';
-import { updateFetch, stopFetch, clearFetch } from 'utilities/actions';
-import config from 'utilities/config';
 import DocumentTitle from 'react-document-title';
-import ClearAllButton from 'components/ClearAllButton';
+import {
+  updateFetch,
+  stopFetch,
+  clearFetch,
+  clearAll
+} from 'utilities/actions';
+import config from 'utilities/config';
 import {
   capitalize,
   checkList,
@@ -17,6 +21,7 @@ import {
   Link,
   Paragraph,
   Heading,
+  Button,
   Wrapper,
   Main,
   Loader,
@@ -40,11 +45,38 @@ import {
 const SearchLink = SidebarItem.withComponent('a').extend`
   color: #9b9b9b;
   text-decoration: none;
+  &:hover {
+    text-decoration:underline;
+  }
+`;
+
+const ClearAllButton = styled(Button)`
+  display: block;
+  box-shadow: none;
+  margin: 0 auto;
+  margin-top: 20px;
+  background-color: #eee;
+  transition: background-color 150ms, color 150ms;
+  color: #9b9b9b;
+  &:hover {
+    color: #fff;
+    background-color: #9b9b9b;
+  }
 `;
 
 /**
  * Venue card atoms
  */
+
+const VenueCardStyled = VenueCard.extend`
+  transition: box-shadow 500ms ease-out;
+  &:hover {
+    box-shadow: 0 0 21px 0 rgba(0, 0, 0, 0.7);
+  }
+  &:hover img {
+    transform: scale(1.1);
+  }
+`;
 
 const VenueInfoWrapper = styled.div`
   position: absolute;
@@ -80,7 +112,7 @@ const VenueRatingWrapper = styled(VenueRating)`
 `;
 
 const Venue = props => (
-  <VenueCard href={`#/venue/${props.id}`}>
+  <VenueCardStyled href={`#/venue/${props.id}`}>
     <VenueInfoWrapper>
       <VenueTitle gotham="book">{props.name}</VenueTitle>
       <VenueMetaWrapper>
@@ -94,25 +126,24 @@ const Venue = props => (
       </VenueMetaWrapper>
     </VenueInfoWrapper>
     <VenueImage src={props.photo} alt={props.name} />
-  </VenueCard>
+  </VenueCardStyled>
 );
 
 /**
- * Layout
+ * Results layout with left and right columns
  */
 
 class Results extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
+  // Checks if current id from the pathname
+  // exists in the searches
   checkParams() {
     const id = this.props.match.params.id;
     const searches = this.props.searches;
     return checkList(id, searches);
   }
 
-  getTitle() {
+  // Builds the document title
+  buildTitle() {
     if (this.checkParams()) {
       return this.props.currentFetch.title;
     } else {
@@ -120,6 +151,7 @@ class Results extends React.Component {
     }
   }
 
+  // Updates the store for current search info
   updateStoreForSearch(query, near, id) {
     this.props.dispatch(updateFetch(query, near, id));
     setTimeout(() => {
@@ -145,13 +177,14 @@ class Results extends React.Component {
     }
   }
 
+  // When unmounting clear the fetch info
   componentWillUnmount() {
     this.props.dispatch(clearFetch());
   }
 
   render() {
     return (
-      <DocumentTitle title={this.getTitle()}>
+      <DocumentTitle title={this.buildTitle()}>
         <Wrapper>
           <Main>
             {!this.checkParams() && (
@@ -192,7 +225,14 @@ class Results extends React.Component {
                 {config.UI.messages.no_recent_search_text}
               </Paragraph>
             )}
-            <ClearAllButton />
+            <ClearAllButton
+              onClick={e => {
+                e.preventDefault();
+                this.props.dispatch(clearAll());
+              }}
+            >
+              Clear All
+            </ClearAllButton>
           </Sidebar>
         </Wrapper>
       </DocumentTitle>

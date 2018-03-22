@@ -1,6 +1,6 @@
 module.exports = {
   /*
-    Application related configuration
+   * Application related configuration
    */
   app: {
     title: 'Foursquared',
@@ -16,7 +16,7 @@ module.exports = {
   },
 
   /*
-    Webpack related configuration
+   * Webpack related configuration
    */
   webpack: {
     output_folder: 'dist',
@@ -25,7 +25,7 @@ module.exports = {
   },
 
   /*
-    Rest API related configuration
+   * Rest API related configuration
    */
   foursquare_api: {
     v: '20180317',
@@ -39,14 +39,14 @@ module.exports = {
   },
 
   /*
-    UI related configuration
+   * UI related configuration
    */
   UI: {
-    // After XHR/fetch request for a better UX
-    // we should delay the response a little bit
+    // After fetch request, for a better UX
+    // we should delay the UI response a little bit
     delay: 1000,
 
-    // In case the db doesn't return anything
+    // In case the db doesn't return any image
     placeholder_img:
       'http://via.placeholder.com/500x500/12195f/ff5f5f?text=:(%20No%20Image',
 

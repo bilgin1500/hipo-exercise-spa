@@ -111,16 +111,10 @@ const VenueHeaderRating = styled(VenueRating)`
 const VenueMetaBlockWrapper = styled.div`
   margin-top: 10px;
   text-align: left;
-  span {
-    display: inline-block;
-  }
   span > div {
     vertical-align: top;
     margin-top: 7px;
     margin-left: 0;
-  }
-  span + span {
-    margin-left: 30px;
   }
   p {
     margin: 0;
@@ -128,9 +122,6 @@ const VenueMetaBlockWrapper = styled.div`
     display: inline-block;
     width: calc(100% - 25px);
     vertical-align: top;
-    ${media.tablet`
-      white-space: nowrap;
-    `};
   }
   img {
     width: 12px;
@@ -140,6 +131,13 @@ const VenueMetaBlockWrapper = styled.div`
   }
   &:first-child {
     margin-top: 0;
+  }
+  &:last-child span {
+    display: inline-block;
+    margin-right: 30px;
+    &:last-child {
+      margin-right: 0;
+    }
   }
 `;
 
@@ -163,8 +161,8 @@ class VenueHeader extends React.Component {
         )}
         <VenueHeaderTitle>{this.props.venue.name}</VenueHeaderTitle>
         <VenueHeaderMetaWrapper>
-          <VenueHeaderRating rating={this.props.venue.rating} />
           <VenueHeaderMetaInnerWrapper>
+            <VenueHeaderRating rating={this.props.venue.rating} />
             {this.props.venue.address && (
               <VenueMetaBlockWrapper>
                 <VenueMetaBlock

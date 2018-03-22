@@ -5,8 +5,13 @@ import { Heading, Paragraph } from 'components/Atoms';
 import { fadeOut, go } from 'utilities/style-mixins';
 import { isUndefined, isNull, isEmptyObj } from 'utilities/helpers';
 
+/*
+ * Message atoms
+ */
+
 const MsgWrapper = styled.div`
   background-color: ${props => {
+    // Background colors according to the type of the message
     switch (props.type) {
       case 0:
         return '#5680fd';
@@ -40,12 +45,12 @@ const MsgText = Paragraph.extend`
   font-size: 1em;
 `;
 
+/*
+ * Message component
+ */
 class Message extends React.Component {
-  constructor() {
-    super();
-  }
-
   render() {
+    // Render logic
     if (!isUndefined(this.props.message) && !isEmptyObj(this.props.message)) {
       return (
         <MsgWrapper type={this.props.message.type}>
@@ -61,6 +66,7 @@ class Message extends React.Component {
   }
 }
 
+// The message object
 Message.propTypes = {
   message: PropTypes.shape({
     type: PropTypes.number,

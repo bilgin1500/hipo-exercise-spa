@@ -3,10 +3,14 @@ import styled from 'styled-components';
 import { Route } from 'react-router-dom';
 import Logo from 'components/Logo';
 import Search from 'components/Search';
-import Welcome from 'components/HeaderWelcome';
+import Welcome from 'components/Welcome';
 import VenueHeader from 'components/VenueHeader';
 import { clearfix, media } from 'utilities/style-mixins';
 import imgBg from 'images/background';
+
+/*
+ * Header atoms
+ */
 
 const Header = styled.header`
   text-align: center;
@@ -23,6 +27,9 @@ const HeaderWrapper = styled.div`
   box-sizing: border-box;
 `;
 
+/*
+ * Header container with routes attached to the inner components
+ */
 export default props => (
   <Header>
     <HeaderWrapper>

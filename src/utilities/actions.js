@@ -78,6 +78,7 @@ export const saveSearch = normalizedResponse => {
  * Action to add a fetched search result to the store
  * @param {object} normalizedResponse - the response from the
  * 'normalizeExplore' method which contains the 'search' property
+ * @param {string} venueId - The unique id of the venue
  * @return {object} An object with action type, venueId and new entities with
  * a venue item containing photos or tips.
  */
@@ -99,8 +100,8 @@ export const clearFetch = () => {
 
 /**
  * Action to handle the messages, warnings and errors.
- * @param {number} type - Message's importance on a 0 to 2 scale:
- * Notifications (0), warnings (1) and errors (2)
+ * @param {number} type - Message's importance on a 0 to 3 scale:
+ * Success (0), Notification (1), warning (2) and error (3)
  * @param {object/string} text - Message text
  * @param {string} title - Message title (Optional)
  * @return {object} An object with action type, message type and text
@@ -148,13 +149,14 @@ export const saveStateToLocalstorage = () => {
 
 /**
  * Action to fetch data from Foursquare.
- * This is a wrapper function to organize the fetching and saving
+ * This is a long wrapper function to organize the fetching and saving
  * data flow with a Promise based structure. The logic below is
  * self-explanatory.
  * @param  {string} params.endpoint - 'Explore', 'photos' or 'tips'
  * @param  {string} params.query - What are we looking for?
  * @param  {string} params.near - Where are we looking for?
  * @param  {string} params.venueId - Unique (Foursquare) ID of the venue
+ * @param  {number} params.offset - Paging offset of the tips
  * @return  {function}
  */
 export const fetchFoursquare = (params = {}) => {
@@ -162,8 +164,10 @@ export const fetchFoursquare = (params = {}) => {
     if (isEmptyObj(params)) return;
 
     const { endpoint, query, near, venueId } = params;
+    const offset = isUndefined(params.offset) ? 0 : params.offset;
     let fetchParams = {};
 
+    // Different endpoints, different fetch parameters
     if (endpoint == 'explore') {
       fetchParams = {
         endpoint: 'explore',
@@ -171,6 +175,7 @@ export const fetchFoursquare = (params = {}) => {
           query: query,
           near: near,
           limit: config.foursquare_api.limit,
+          offset: offset,
           venuePhotos: true
         }
       };
@@ -180,7 +185,8 @@ export const fetchFoursquare = (params = {}) => {
         field: endpoint,
         params: {
           group: 'venue',
-          limit: config.foursquare_api.limit
+          limit: config.foursquare_api.limit,
+          offset: offset
         }
       };
     }
@@ -200,7 +206,7 @@ export const fetchFoursquare = (params = {}) => {
           // Check if there is any errors
           // see developer.foursquare.com/docs/api/troubleshooting/errors
           if (response.meta.code === 200) {
-            // Check if there is any result
+            // Check if there is any result..
             if (response.response.totalResults == 0) {
               // If no results, stop the search and inform the UI
               // that the results are empty.
@@ -209,10 +215,9 @@ export const fetchFoursquare = (params = {}) => {
                 dispatch(beep(1, config.UI.messages.no_results_found_text));
               }, config.UI.delay);
             } else {
-              // Otherwise stop the search, proceed with
-              // merging data and related logic
+              // If there are results proceed with a little bit of delay
               setTimeout(() => {
-                dispatch(stopFetch());
+                // There are small differences on both endpoint's logic
                 if (endpoint == 'explore') {
                   dispatch(saveSearch(normalizeExplore(response)));
                   dispatch(saveStateToLocalstorage());
@@ -221,10 +226,16 @@ export const fetchFoursquare = (params = {}) => {
                   // We're adding the venue id because on the response
                   // from the server there isn't any information about the venue
                   dispatch(
-                    saveVenue(normalizeVenue(response, venueId), venueId)
+                    saveVenue(
+                      normalizeVenue(response, venueId, offset),
+                      venueId
+                    )
                   );
                   dispatch(saveStateToLocalstorage());
                 }
+
+                // Stop the search
+                dispatch(stopFetch());
               }, config.UI.delay);
             }
           } else {
@@ -254,7 +265,7 @@ export const fetchFoursquare = (params = {}) => {
 };
 
 /**
- * Clears the current search and go back to home
+ * Go back to home
  */
 export const goToHomePage = () => {
   return dispatch => {
@@ -264,7 +275,7 @@ export const goToHomePage = () => {
 
 /**
  * Go to a specific search page
-
+ * @param {string} id - Unique search id
  */
 export const goToSearchPage = id => {
   return dispatch => {

@@ -17,6 +17,7 @@ import {
 import {
   Paragraph,
   Heading,
+  Link,
   Wrapper,
   Main,
   Sidebar,
@@ -32,6 +33,7 @@ import {
 
 const VenueSidebar = styled(Sidebar)`
   background-color: #fff;
+  box-shadow: 0 0 34px 0 rgba(115, 95, 255, 0.32);
   ${media.laptop`
     margin-top: -85px;
   `};
@@ -56,6 +58,7 @@ const TipUser = Heading.withComponent('h2').extend`
   font-size: 0.875em;
   color: #9b9b9b;
   text-align: left;
+  word-wrap: break-word;
 `;
 
 const TipText = Paragraph.extend`
@@ -63,6 +66,20 @@ const TipText = Paragraph.extend`
   color: #9b9b9b;
   text-align: left;
   margin-top: 15px;
+  word-wrap: break-word;
+`;
+
+const MoreLink = Link.extend`
+  display: block;
+  text-align: center;
+  margin-top: 50px;
+  margin-bottom: 20px;
+  font-size: 0.6875em;
+  cursor: ${props => (props.isFetching ? 'default' : 'pointer')};
+  color: ${props => (props.isFetching ? '#ccc' : '#7a74d2')};
+  &:hover {
+    text-decoration: ${props => (props.isFetching ? 'none' : 'underline')};
+  }
 `;
 
 /**
@@ -133,14 +150,34 @@ const VenuePhotoCard = props => (
 );
 
 /**
- * Layout
+ * Layout with left and right columns
  */
 
 class VenueDetail extends React.Component {
   constructor() {
     super();
+    this.getMoreTips = this.getMoreTips.bind(this);
   }
 
+  // To request more tips from the server use this function
+  getMoreTips(e) {
+    e.preventDefault();
+    const currOffset = this.props.venue.tipsOffset;
+    const totalTips = this.props.venue.tipsCount;
+
+    // Check if there are still tips left on the server
+    if (currOffset < totalTips && !this.props.currentFetch.isFetching) {
+      this.props.dispatch(
+        fetchFoursquare({
+          endpoint: 'tips',
+          venueId: this.props.venue.id,
+          offset: currOffset + config.foursquare_api.limit
+        })
+      );
+    }
+  }
+
+  // After page load request tips and photos from the server
   componentDidMount() {
     if (!isEmptyObj(this.props.venue) && !isUndefined(this.props.venue.id)) {
       this.props.dispatch(
@@ -159,6 +196,7 @@ class VenueDetail extends React.Component {
   }
 
   render() {
+    // Out of scope error :/
     return isEmptyObj(this.props.venue) || isUndefined(this.props.venue.id) ? (
       <Redirect to="/" />
     ) : (
@@ -204,6 +242,18 @@ class VenueDetail extends React.Component {
               <Paragraph gotham="book" color="#999">
                 {config.UI.messages.no_tips_text}
               </Paragraph>
+            )}
+            {this.props.venue.tipsOffset < this.props.venue.tipsCount && (
+              <MoreLink
+                onClick={this.getMoreTips}
+                gotham="medium"
+                href="/"
+                isFetching={this.props.currentFetch.isFetching}
+              >
+                {this.props.currentFetch.isFetching
+                  ? 'Loading more...'
+                  : 'Get more tips'}
+              </MoreLink>
             )}
           </VenueSidebar>
         </Wrapper>

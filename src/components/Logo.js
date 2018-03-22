@@ -10,7 +10,7 @@ import iconLogo from 'images/logo';
 import config from 'utilities/config';
 
 // LogoWrapper is an <a> tag with <h1> and <img> inside
-// The most complicated dynamic css of the project :(
+// The most complicated css of the project :(
 const LogoWrapper = styled.a.attrs({
   href: '#/'
 })`
@@ -78,6 +78,7 @@ const Logo = class App extends React.Component {
     this.setLogoHeight = this.setLogoHeight.bind(this);
   }
 
+  // Out of scope error :/
   is404() {
     return !(
       this.props.location.pathname == '/' ||
@@ -92,15 +93,16 @@ const Logo = class App extends React.Component {
     LogoWrapper.style.height = LogoWrapper.offsetWidth + 'px';
   }
 
+  // Helper to add the resize listener
   addListener() {
     setTimeout(this.setLogoHeight, 0);
     window.addEventListener('resize', this.setLogoHeight);
   }
 
+  // Add listener on mount and updates
   componentDidMount() {
     this.addListener();
   }
-
   componentWillUpdate() {
     this.addListener();
   }
@@ -111,7 +113,10 @@ const Logo = class App extends React.Component {
     ) : (
       <LogoWrapper
         pathname={this.props.location.pathname}
-        onClick={this.props.onClick}
+        onClick={e => {
+          e.preventDefault();
+          this.props.dispatch(goToHomePage());
+        }}
         innerRef={tag => {
           this.elements.LogoWrapper = tag;
         }}
@@ -123,17 +128,4 @@ const Logo = class App extends React.Component {
   }
 };
 
-Logo.propTypes = {
-  onClick: PropTypes.func.isRequired
-};
-
-const mapDispatchToProps = dispatch => {
-  return {
-    onClick: e => {
-      e.preventDefault();
-      dispatch(goToHomePage());
-    }
-  };
-};
-
-export default connect(undefined, mapDispatchToProps)(Logo);
+export default connect()(Logo);

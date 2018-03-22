@@ -1,7 +1,7 @@
-import merge from 'lodash.merge';
+import mergeWith from 'lodash.mergewith';
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
-import { convertDate } from 'utilities/helpers';
+import { uniqueConcat } from 'utilities/helpers';
 import {
   START_FETCH,
   STOP_FETCH,
@@ -126,7 +126,7 @@ const entities = (
   action
 ) => {
   if (action.entities) {
-    return merge({}, state, action.entities);
+    return mergeWith({}, state, action.entities, uniqueConcat);
   }
 
   return state;

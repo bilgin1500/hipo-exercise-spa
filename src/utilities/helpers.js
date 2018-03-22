@@ -1,30 +1,31 @@
+import uniqueBy from 'lodash.uniqby';
 import config from 'utilities/config';
 
 /*
-  Is a given variable undefined?
+ * Is the given variable undefined?
  */
 export const isUndefined = obj => {
   return obj === void 0;
 };
 
 /*
-  Is a given variable null?
+ * Is the given variable null?
  */
 export const isNull = obj => {
   return obj === null;
 };
 
 /*
-  Is this a function?
-  @see https://stackoverflow.com/a/7356528/4707530
+ * Is this a function?
+ * @see https://stackoverflow.com/a/7356528/4707530
  */
 export const isFunction = func => {
   return func && {}.toString.call(func) === '[object Function]';
 };
 
 /*
-  Is this an empty object?
-  @see https://stackoverflow.com/a/32108184/4707530
+ * Is this an empty object?
+ * @see https://stackoverflow.com/a/32108184/4707530
  */
 export const isEmptyObj = obj => {
   return Object.keys(obj).length === 0 && obj.constructor === Object;
@@ -37,38 +38,6 @@ export const isEmptyObj = obj => {
  */
 export const capitalize = string => {
   return string.replace(string.charAt(0), string.charAt(0).toUpperCase());
-};
-
-/**
- * Date converter. Converts js date object to a simple sql format
- * @param {object} date - Js date object
- * @return {string} YYYY-MM-DD HH:MM
- */
-export const convertDate = date => {
-  let year = date.getFullYear();
-  let month = date.getMonth() + 1;
-  let day = date.getDate();
-  let hour = date.getHours();
-  let min = date.getMinutes();
-
-  function addZero(num) {
-    if (num < 10) {
-      num = '0' + num;
-    }
-    return num;
-  }
-
-  return (
-    year +
-    '-' +
-    addZero(month) +
-    '-' +
-    addZero(day) +
-    ' ' +
-    addZero(hour) +
-    ':' +
-    addZero(min)
-  );
 };
 
 /**
@@ -130,7 +99,7 @@ export const buildTitle = title => {
 };
 
 /**
- * The ultimate full name builder
+ * The ultimate full name builder!!!
  * @param  {string} name
  * @param  {string} surname
  * @return {string} Full name!
@@ -140,4 +109,24 @@ export const buildName = (name, surname) => {
     (isUndefined(name) ? '' : name) +
     (isUndefined(surname) ? '' : ' ' + surname)
   );
+};
+
+/**
+ * Customizer function for mergeWith
+ *
+ * Lodash.Merge doesn't concat arrays so we're using mergeWith
+ * combined with uniqueBy. uniqueBy's iiteratee id 'id'.
+ *
+ * For more:
+ * https://lodash.com/docs/4.17.5#mergeWith
+ * https://lodash.com/docs/4.17.5#uniqBy
+ *
+ * @param  {object} objValue - Object to be added
+ * @param  {object} srcValue - Source
+ * @return {array} Two arrays together
+ */
+export const uniqueConcat = (objValue, srcValue) => {
+  if (Array.isArray(objValue)) {
+    return uniqueBy(objValue.concat(srcValue), 'id');
+  }
 };

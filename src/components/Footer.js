@@ -3,11 +3,16 @@ import styled from 'styled-components';
 import { Link } from 'components/Atoms';
 import { media } from 'utilities/style-mixins';
 
+// Footer links array to map
 const navItems = [
   { name: 'About us', href: '#/' },
   { name: 'Contact', href: '#/' },
   { name: 'Blog', href: '#/' }
 ];
+
+/*
+ * Footer atoms
+ */
 
 const LinkFooter = Link.extend`
   font-size: 0.75em;
@@ -33,6 +38,9 @@ const Footer = styled.footer`
   padding: 40px;
 `;
 
+/*
+ * Footer component
+ */
 export default props => {
   return (
     <Footer>

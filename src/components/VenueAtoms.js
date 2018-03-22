@@ -17,7 +17,7 @@ const icons = {
 };
 
 //Proptype validation for venue data containers:
-//MainVenueDetail.js and VenueHeader.js
+//VenueDetail.js and VenueHeader.js
 export const propTypes = {
   dispatch: PropTypes.func.isRequired,
   currentFetch: PropTypes.shape({
@@ -38,7 +38,9 @@ export const propTypes = {
     hereNow: PropTypes.number,
     categories: PropTypes.array,
     photos: PropTypes.array,
-    tips: PropTypes.array
+    tips: PropTypes.array,
+    tipsOffset: PropTypes.number,
+    tipsCount: PropTypes.number
   })
 };
 
@@ -87,6 +89,11 @@ export const VenueImage = styled(Image)`
   z-index: 1;
   opacity: 0.5;
   object-fit: cover;
+  transform-origin: 50% 50%;
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  transition: transform 0.2s ease-in-out;
 `;
 
 /**

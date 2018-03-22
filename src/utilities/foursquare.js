@@ -12,12 +12,10 @@ const buildCreds = () => {
 };
 
 /**
- * This function builds the custom API urls to fetch the endpoints with custom
- * parameters
+ * This function builds the custom API urls. It glues all the parts together.
  * @param  {string} options.endpoint - categories,explore,search,photos,tips
  * @param  {object} options.params - endpoint specific query parameters
- * @param  {string} options.field - endpoint's field to fetch,
- * /VENUE_ID/photos etc.
+ * @param  {string} options.field - a field to fetch, like photos or tips
  * @return {string} A valid Foursquare API url with credentials attached at
  * the end
  */
